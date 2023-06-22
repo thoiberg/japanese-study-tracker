@@ -52,6 +52,17 @@ jobs:
             npm install
             npm run lint
           working_directory: frontend
+  frontend unit test:
+    docker:
+        - image: node:20.2.0
+    steps:
+      - checkout
+      - run:
+          name: Unit test
+          command: |
+            npm install
+            npm run test:unit
+          working_directory: frontend
 
 
 # Orchestrate jobs using workflows
@@ -65,3 +76,4 @@ workflows:
   frontend:
     jobs:
       - frontend lint
+      - frontend unit test
