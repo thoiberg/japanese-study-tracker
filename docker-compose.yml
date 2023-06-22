@@ -8,6 +8,8 @@ services:
       - rust_target:/app/target
     ports:
       - "3000:3000"
+    environment:
+      - WANIKANI_API_TOKEN
   frontend:
     build:
       context: ./frontend
