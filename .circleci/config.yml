@@ -5,22 +5,45 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  say-hello:
+  backend build:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     docker:
-      - image: cimg/base:stable
+      - image: rust:1.70
     # Add steps to the job
     # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: "Cargo build"
+          command: "cargo build"
+          working_directory: "backend"
+  backend lint:
+    docker:
+      - image: rust:1.70
+    steps:
+        - checkout
+        - run:
+            name: "Clippy check"
+            command: |
+              rustup component add clippy
+              cargo clippy
+            working_directory: "backend"
+  backend test:
+    docker:
+      - image: rust:1.70
+    steps:
+      - checkout
+      - run:
+          name: "Cargo test"
+          command: "cargo test"
+          working_directory: "backend"
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  backend:
     jobs:
-      - say-hello
+      - backend build
+      - backend lint
+      - backend test
