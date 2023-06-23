@@ -9,7 +9,7 @@ RUN curl -L --proto '=https' --tlsv1.2 \
     | bash
 
 # install watch
-RUN rustup component add clippy
+RUN rustup component add clippy rustfmt
 RUN cargo binstall -y cargo-watch
 RUN cargo install diesel_cli
 
