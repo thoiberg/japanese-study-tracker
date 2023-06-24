@@ -29,7 +29,6 @@ async fn get_summary_data() -> anyhow::Result<WaniKaniResponse> {
 
 #[derive(serde::Deserialize)]
 struct WaniKaniResponse {
-    // TODO: fill this out with the rest of the information from the API
     object: String,
     url: String,
     data_updated_at: DateTime<Utc>,
@@ -40,7 +39,7 @@ struct WaniKaniResponse {
 struct DataStructure {
     lessons: Vec<Lesson>,
     next_reviews_at: DateTime<Utc>,
-    reviews: Vec<Lesson>,
+    reviews: Vec<Review>,
 }
 
 impl DataStructure {
@@ -58,6 +57,7 @@ impl DataStructure {
 
     fn current_reviews(&self) -> u32 {
         // first item in the list is the current active review queue
+        // if no active reviews then it's empty
         match self.reviews.first() {
             Some(reviews) => reviews.total_count(),
             None => 0, // no reviews I guess - yay!
@@ -76,6 +76,8 @@ impl Lesson {
         self.subject_ids.iter().fold(0, |acc, _| acc + 1)
     }
 }
+
+type Review = Lesson;
 
 // TODO: Find a better name
 #[derive(serde::Serialize)]
