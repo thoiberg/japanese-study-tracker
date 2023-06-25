@@ -2,6 +2,7 @@ import { describe, it, vi, expect, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 
 import WaniKaniVue from '../WaniKani.vue'
+import LoadingIndicatorVue from '../LoadingIndicator.vue'
 
 describe('WaniKani', () => {
   const fetchMock = vi.fn()
@@ -19,7 +20,7 @@ describe('WaniKani', () => {
 
     const wrapper = mount(WaniKaniVue)
 
-    expect(wrapper.text()).toContain('Loading...')
+    expect(wrapper.findComponent(LoadingIndicatorVue).exists()).toBe(true)
   })
 
   describe('when the request succeeds', () => {
