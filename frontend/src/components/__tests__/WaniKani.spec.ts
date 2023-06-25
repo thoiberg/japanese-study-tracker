@@ -32,6 +32,7 @@ describe('WaniKani', () => {
       }
       const mockResponse = {
         status: 200,
+        ok: true,
         json: () => new Promise((resolve) => resolve(data))
       }
       fetchMock.mockResolvedValue(mockResponse)
@@ -50,6 +51,7 @@ describe('WaniKani', () => {
       }
       const mockResponse = {
         status: 500,
+        ok: false,
         json: () => new Promise((resolve) => resolve(data))
       }
       fetchMock.mockResolvedValue(mockResponse)
