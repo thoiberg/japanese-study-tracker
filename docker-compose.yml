@@ -8,6 +8,8 @@ services:
       - rust_target:/app/target
     ports:
       - "3000:3000"
+    env_file:
+      - .env.development
   frontend:
     build:
       context: ./frontend

@@ -3,17 +3,23 @@ use std::net::SocketAddr;
 use axum::{response::Html, routing::get, Router};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+pub mod api;
+
+use api::wanikani::wanikani_handler;
+
 #[tokio::main]
 async fn main() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "japanese-study-tracker=info".into()),
+                .unwrap_or_else(|_| "japanese-study-tracker=debug".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let app = Router::new().route("/", get(root_handler));
+    let app = Router::new()
+        .route("/", get(root_handler))
+        .route("/api/wanikani", get(wanikani_handler));
 
     let address = SocketAddr::from(([0, 0, 0, 0], 3000));
 
