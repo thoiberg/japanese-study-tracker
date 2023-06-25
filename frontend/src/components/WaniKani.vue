@@ -42,9 +42,3 @@ type BackendError = {
   message: string
 }
 </script>
-
-<style scoped>
-.loading {
-  width: 33%;
-}
-</style>
