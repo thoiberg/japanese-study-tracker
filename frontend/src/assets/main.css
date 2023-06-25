@@ -9,3 +9,12 @@ body {
 #app {
   height: 100%;
 }
+
+.app-stats {
+  font-size: 2.5rem;
+  text-align: center;
+}
+
+.fetched-stats {
+  font-size: 1rem;
+}

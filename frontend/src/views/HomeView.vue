@@ -4,7 +4,7 @@ import WaniKani from '@/components/WaniKani.vue'
 
 <template>
   <main class="grid-container">
-    <div class="item-container">
+    <div class="item-container wanikani">
       <WaniKani />
     </div>
     <div class="item-container">
@@ -24,6 +24,7 @@ import WaniKani from '@/components/WaniKani.vue'
   height: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
 }
 
 .item-container {
@@ -31,5 +32,16 @@ import WaniKani from '@/components/WaniKani.vue'
   grid-template-columns: subgrid;
   align-items: center;
   justify-items: center;
+}
+
+.wanikani {
+  background-color: #df00a9;
+  color: rgb(255, 255, 255);
+}
+</style>
+
+<style>
+.wanikani .loading-indicator {
+  fill: rgb(227, 219, 219);
 }
 </style>

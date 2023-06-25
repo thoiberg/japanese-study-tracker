@@ -1,13 +1,13 @@
 <template>
   <div v-if="waniKaniData">
-    <div>Current Lessons: {{ waniKaniData.active_lesson_count }}</div>
-    <div>Current Reviews: {{ waniKaniData.active_review_count }}</div>
-    <div>Data Fetched at: {{ new Date(waniKaniData.data_updated_at) }}</div>
+    <p class="app-stats">Current Lessons: {{ waniKaniData.active_lesson_count }}</p>
+    <p class="app-stats">Current Reviews: {{ waniKaniData.active_review_count }}</p>
+    <p class="fetched-stats">Data Fetched at: {{ new Date(waniKaniData.data_updated_at) }}</p>
   </div>
   <div v-else-if="error">
     <p>{{ error.message }}</p>
   </div>
-  <LoadingIndicator v-else class="loading" />
+  <LoadingIndicator v-else />
 </template>
 
 <script setup lang="ts">
