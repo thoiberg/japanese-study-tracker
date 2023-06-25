@@ -7,11 +7,12 @@
   <div v-else-if="error">
     <p>{{ error.message }}</p>
   </div>
-  <div v-else>Loading...</div>
+  <LoadingIndicator v-else class="loading" />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, type Ref } from 'vue'
+import LoadingIndicator from './LoadingIndicator.vue'
 
 let waniKaniData: Ref<WaniKaniResponse | null> = ref(null)
 let error: Ref<BackendError | null> = ref(null)
@@ -40,3 +41,9 @@ type BackendError = {
   message: string
 }
 </script>
+
+<style scoped>
+.loading {
+  width: 33%;
+}
+</style>
