@@ -2,7 +2,7 @@
   <div v-if="waniKaniData">
     <p class="app-stats">Current Lessons: {{ waniKaniData.active_lesson_count }}</p>
     <p class="app-stats">Current Reviews: {{ waniKaniData.active_review_count }}</p>
-    <p class="fetched-stats">Data Fetched at: {{ new Date(waniKaniData.data_updated_at) }}</p>
+    <UpdatedTimestamp :time-stamp="waniKaniData.data_updated_at" />
   </div>
   <div v-else-if="error">
     <p>{{ error.message }}</p>
@@ -13,6 +13,7 @@
 <script setup lang="ts">
 import { onMounted, ref, type Ref } from 'vue'
 import LoadingIndicator from './LoadingIndicator.vue'
+import UpdatedTimestamp from './UpdatedTimestamp.vue'
 
 let waniKaniData: Ref<WaniKaniResponse | null> = ref(null)
 let error: Ref<BackendError | null> = ref(null)
