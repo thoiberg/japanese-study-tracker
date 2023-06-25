@@ -18,10 +18,10 @@ let waniKaniData: Ref<WaniKaniResponse | null> = ref(null)
 let error: Ref<BackendError | null> = ref(null)
 
 onMounted(async () => {
-  const response = await fetch('/api/wanikani')
-
   try {
-    if (response.status < 400) {
+    const response = await fetch('/api/wanikani')
+
+    if (response.ok) {
       waniKaniData.value = await response.json()
     } else {
       error.value = await response.json()
