@@ -42,6 +42,6 @@ import WaniKani from '@/components/WaniKani.vue'
 
 <style>
 .wanikani .loading-indicator {
-  fill: rgb(227, 219, 219);
+  --accent-color: rgb(227, 219, 219);
 }
 </style>

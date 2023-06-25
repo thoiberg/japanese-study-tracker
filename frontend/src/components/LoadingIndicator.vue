@@ -32,6 +32,7 @@
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-duration: 2s;
+  fill: var(--accent-color);
 }
 
 @keyframes rotate {
