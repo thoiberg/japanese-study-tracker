@@ -21,6 +21,7 @@
       />
     </g>
   </svg>
+  <p>Loading...</p>
 </template>
 
 <style scoped>
