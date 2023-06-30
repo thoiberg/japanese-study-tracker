@@ -2,7 +2,7 @@ use std::{fs, net::SocketAddr};
 
 use axum::{http::StatusCode, response::Html, routing::get, Router};
 use tokio::signal;
-use tower_http::services::ServeDir;
+use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 pub mod api;
@@ -14,7 +14,7 @@ async fn main() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "japanese_study_tracker_backend=info".into()),
+                .unwrap_or_else(|_| "japanese_study_tracker_backend=info,tower_http=debug".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
@@ -22,7 +22,8 @@ async fn main() {
     let app = Router::new()
         .merge(Router::new().nest_service("/assets", ServeDir::new("dist/assets")))
         .route("/", get(root_handler))
-        .route("/api/wanikani", get(wanikani_handler));
+        .route("/api/wanikani", get(wanikani_handler))
+        .layer(TraceLayer::new_for_http());
 
     let address = SocketAddr::from(([0, 0, 0, 0], 3000));
 
