@@ -14,7 +14,7 @@ async fn main() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "japanese-study-tracker=debug".into()),
+                .unwrap_or_else(|_| "japanese_study_tracker_backend=info".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
@@ -66,5 +66,5 @@ async fn shutdown_signal() {
         _ = terminate => {},
     }
 
-    println!("signal received, starting graceful shutdown");
+    tracing::info!("signal received, starting graceful shutdown");
 }
