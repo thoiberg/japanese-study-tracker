@@ -1,6 +1,7 @@
 use std::{fs, net::SocketAddr};
 
 use axum::{http::StatusCode, response::Html, routing::get, Router};
+use tokio::signal;
 use tower_http::services::ServeDir;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -18,7 +19,6 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    // TODO add nest service to serve dist/assets directory
     let app = Router::new()
         .merge(Router::new().nest_service("/assets", ServeDir::new("dist/assets")))
         .route("/", get(root_handler))
@@ -30,6 +30,7 @@ async fn main() {
 
     axum::Server::bind(&address)
         .serve(app.into_make_service())
+        .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap()
 }
@@ -43,10 +44,27 @@ async fn root_handler() -> Result<Html<String>, (StatusCode, &'static str)> {
     })?;
 
     Ok(Html(html_string))
-    // Read the index file (return 500 if impossible)
-    // pull from the dist dir
-    // then on deploy copy the dist dir from Vue into the rust app
-    // Router::new().
-    // ServeFile::new("assets/index.html")
-    // Html(include_str!("dist/assets/index.html"))
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("failed to install signal handler")
+            .recv()
+            .await;
+    };
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
+
+    println!("signal received, starting graceful shutdown");
 }
