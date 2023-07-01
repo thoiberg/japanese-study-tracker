@@ -1,7 +1,9 @@
 ############################
 # Backend build
 ############################
-FROM rust:1.70 AS backend-build
+FROM rust:1.70-alpine3.18 AS backend-build
+
+RUN apk add pkgconfig openssl openssl-dev musl musl-dev
 
 RUN mkdir /app
 WORKDIR /app
@@ -26,7 +28,9 @@ RUN npm run build-only
 ############################
 # Executable
 ############################
-FROM rust:1.70
+FROM alpine:3.18
+
+RUN apk add libc6-compat
 
 RUN mkdir /app
 WORKDIR /app
