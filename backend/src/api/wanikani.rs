@@ -15,8 +15,7 @@ pub async fn wanikani_handler(
 }
 
 async fn get_summary_data() -> anyhow::Result<WaniKaniResponse> {
-    // TODO: Don't use expect, as it causes the thread to panic. Return the result and then map to a 500 error in the handler
-    let api_token = env::var("WANIKANI_API_TOKEN").expect("WANIKANI_API_TOKEN must be set");
+    let api_token = env::var("WANIKANI_API_TOKEN")?;
     let client = Client::new()
         .get("https://api.wanikani.com/v2/summary")
         .header("Wanikani-Revision", "20170710")

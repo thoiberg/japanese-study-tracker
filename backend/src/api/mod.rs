@@ -12,6 +12,8 @@ where
     E: Into<anyhow::Error>,
 {
     let err = err.into();
+    tracing::error!("Error: {}", err.to_string());
+
     (
         StatusCode::INTERNAL_SERVER_ERROR,
         Json(ErrorResponse {
