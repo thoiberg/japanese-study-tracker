@@ -5,7 +5,7 @@ use tokio::signal;
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::api::wanikani::wanikani_handler;
+use crate::api::{bunpro::bunpro_handler, wanikani::wanikani_handler};
 
 pub mod api;
 
@@ -23,6 +23,7 @@ async fn main() {
         .merge(Router::new().nest_service("/assets", ServeDir::new("dist/assets")))
         .route("/", get(root_handler))
         .route("/api/wanikani", get(wanikani_handler))
+        .route("/api/bunpro", get(bunpro_handler))
         .layer(TraceLayer::new_for_http());
 
     let address = SocketAddr::from(([0, 0, 0, 0], 3000));
