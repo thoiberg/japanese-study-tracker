@@ -1,0 +1,14 @@
+{
+    "user_information": {
+        "username": "redacted",
+        "grammar_point_count": 792,
+        "ghost_review_count": 3623,
+        "creation_date": 1601903994
+    },
+    "requested_information": {
+        "reviews_available": 23,
+        "next_review_date": 1688212800,
+        "reviews_available_next_hour": 26,
+        "reviews_available_next_day": 32
+    }
+}

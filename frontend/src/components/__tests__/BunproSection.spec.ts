@@ -1,10 +1,10 @@
 import { describe, it, vi, expect, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 
-import WanikaniSectionVue from '../WanikaniSection.vue'
+import BunproSectionVue from '../BunproSection.vue'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
 
-describe('WaniKani', () => {
+describe('BunproSection', () => {
   const fetchMock = vi.fn()
   global.fetch = fetchMock
 
@@ -18,7 +18,7 @@ describe('WaniKani', () => {
     }
     fetchMock.mockResolvedValue(mockResponse)
 
-    const wrapper = mount(WanikaniSectionVue)
+    const wrapper = mount(BunproSectionVue)
 
     expect(wrapper.findComponent(LoadingIndicatorVue).exists()).toBe(true)
   })
@@ -27,8 +27,7 @@ describe('WaniKani', () => {
     it('displays the information', async () => {
       const data = {
         data_updated_at: '2023-06-24T06:00:00Z',
-        active_lesson_count: 66,
-        active_review_count: 15
+        active_review_count: 8
       }
       const mockResponse = {
         status: 200,
@@ -37,10 +36,10 @@ describe('WaniKani', () => {
       }
       fetchMock.mockResolvedValue(mockResponse)
 
-      const wrapper = mount(WanikaniSectionVue)
+      const wrapper = mount(BunproSectionVue)
       await flushPromises()
 
-      expect(wrapper.text()).toContain('66')
+      expect(wrapper.text()).toContain(8)
     })
   })
 
@@ -56,7 +55,7 @@ describe('WaniKani', () => {
       }
       fetchMock.mockResolvedValue(mockResponse)
 
-      const wrapper = mount(WanikaniSectionVue)
+      const wrapper = mount(BunproSectionVue)
       await flushPromises()
 
       expect(wrapper.text()).toContain('uh oh')
