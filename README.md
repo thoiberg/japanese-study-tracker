@@ -30,5 +30,12 @@ npm run test:unit
 
 Deploying to fly.io uses the top level Dockerfile. Deploying is done with:
 ```bash
-fly deploy
+fly deploy # Note: you need to have access to the project in fly.io to deploy
+```
+
+### Testing the deploy image
+The deploy image can be build and run with:
+```bash
+docker build -t deploy-test .
+docker run --env-file .env.development -p 3000:3000 -it deploy-test
 ```
