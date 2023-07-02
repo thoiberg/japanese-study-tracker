@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import BunproSection from '@/components/BunproSection.vue'
-import WaniKani from '@/components/WaniKani.vue'
+import Bunpro from '@/components/BunproSection.vue'
+import WaniKani from '@/components/WanikaniSection.vue'
 </script>
 
 <template>
@@ -9,7 +9,7 @@ import WaniKani from '@/components/WaniKani.vue'
       <WaniKani />
     </div>
     <div class="item-container bunpro">
-      <BunproSection />
+      <Bunpro />
     </div>
     <div class="item-container">
       <p>Satori</p>

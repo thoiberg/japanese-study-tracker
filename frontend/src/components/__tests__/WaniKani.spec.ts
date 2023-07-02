@@ -1,7 +1,7 @@
 import { describe, it, vi, expect, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 
-import WaniKaniVue from '../WaniKani.vue'
+import WanikaniSectionVue from '../WanikaniSection.vue'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
 
 describe('WaniKani', () => {
@@ -18,7 +18,7 @@ describe('WaniKani', () => {
     }
     fetchMock.mockResolvedValue(mockResponse)
 
-    const wrapper = mount(WaniKaniVue)
+    const wrapper = mount(WanikaniSectionVue)
 
     expect(wrapper.findComponent(LoadingIndicatorVue).exists()).toBe(true)
   })
@@ -37,7 +37,7 @@ describe('WaniKani', () => {
       }
       fetchMock.mockResolvedValue(mockResponse)
 
-      const wrapper = mount(WaniKaniVue)
+      const wrapper = mount(WanikaniSectionVue)
       await flushPromises()
 
       expect(wrapper.text()).toContain('66')
@@ -56,7 +56,7 @@ describe('WaniKani', () => {
       }
       fetchMock.mockResolvedValue(mockResponse)
 
-      const wrapper = mount(WaniKaniVue)
+      const wrapper = mount(WanikaniSectionVue)
       await flushPromises()
 
       expect(wrapper.text()).toContain('uh oh')
