@@ -5,9 +5,9 @@ use tokio::signal;
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-pub mod api;
+use crate::api::wanikani::wanikani_handler;
 
-use api::wanikani::wanikani_handler;
+pub mod api;
 
 #[tokio::main]
 async fn main() {
