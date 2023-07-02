@@ -14,6 +14,7 @@
 import { onMounted, ref, type Ref } from 'vue'
 import LoadingIndicator from './LoadingIndicator.vue'
 import UpdatedTimestamp from './UpdatedTimestamp.vue'
+import type { BackendError } from 'env'
 
 let waniKaniData: Ref<WaniKaniResponse | null> = ref(null)
 let error: Ref<BackendError | null> = ref(null)

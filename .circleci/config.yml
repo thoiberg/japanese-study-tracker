@@ -63,6 +63,17 @@ jobs:
             npm install
             npm run test:unit
           working_directory: frontend
+  frontend type check:
+    docker:
+        - image: node:20.2.0
+    steps:
+      - checkout
+      - run:
+          name: Type check
+          command: |
+            npm install
+            npm run type-check
+          working_directory: frontend
 
   deploy:
     docker:
@@ -83,6 +94,7 @@ workflows:
       - backend test
       - frontend lint
       - frontend unit test
+      - frontend type check
       - deploy:
           requires:
             - backend build
@@ -90,6 +102,7 @@ workflows:
             - backend test
             - frontend lint
             - frontend unit test
+            - frontend type check
           filters:
             branches:
               only:
