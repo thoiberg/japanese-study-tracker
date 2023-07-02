@@ -22,13 +22,13 @@ impl DataStructure {
             .fold(0, |acc, review| acc + review.total_count())
     }
 
-    pub fn total_lessons(&self) -> u32 {
+    fn total_lessons(&self) -> u32 {
         self.lessons
             .iter()
             .fold(0, |acc, lesson| acc + lesson.total_count())
     }
 
-    pub fn current_reviews(&self) -> u32 {
+    fn current_reviews(&self) -> u32 {
         // first item in the list is the current active review queue
         // if no active reviews then it's empty
         match self.reviews.first() {
@@ -39,7 +39,7 @@ impl DataStructure {
 }
 
 #[derive(serde::Deserialize)]
-pub struct Lesson {
+struct Lesson {
     available_at: DateTime<Utc>,
     subject_ids: Vec<u32>,
 }
@@ -50,7 +50,7 @@ impl Lesson {
     }
 }
 
-pub type Review = Lesson;
+type Review = Lesson;
 
 // TODO: Find a better name
 #[derive(serde::Serialize)]
