@@ -10,6 +10,6 @@ RUN curl -L --proto '=https' --tlsv1.2 \
 
 # install watch
 RUN rustup component add clippy rustfmt
-RUN cargo binstall -y cargo-watch
+RUN cargo binstall -y cargo-watch cargo-nextest
 
 CMD [ "cargo", "watch", "-x", "'run'" ]
