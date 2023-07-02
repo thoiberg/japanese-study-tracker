@@ -21,9 +21,18 @@ async fn get_summary_data() -> anyhow::Result<WaniKaniResponse> {
         .header("Wanikani-Revision", "20170710")
         .bearer_auth(api_token);
 
-    let summary_data = client.send().await?.json::<WaniKaniResponse>().await?;
+    client
+        .send()
+        .await?
+        .text()
+        .await
+        .map(deserialize_response)?
+}
 
-    Ok(summary_data)
+fn deserialize_response(response_body: String) -> anyhow::Result<WaniKaniResponse> {
+    let json_data = serde_json::from_str(response_body.as_str())?;
+
+    Ok(json_data)
 }
 
 #[derive(serde::Deserialize)]
@@ -93,5 +102,28 @@ impl From<WaniKaniResponse> for WaniKaniDataForFrontend {
             active_lesson_count: value.data.total_lessons(),
             active_review_count: value.data.current_reviews(),
         }
+    }
+}
+
+#[cfg(test)]
+mod test_super {
+    use super::*;
+
+    #[test]
+    fn test_can_deserialize_empty_reviews() {
+        let response_data = include_str!("./fixtures/wanikani_with_no_reviews.json");
+
+        let response = deserialize_response(response_data.into());
+
+        assert!(response.is_ok());
+    }
+
+    #[test]
+    fn test_can_deserialize_with_reviews() {
+        let response_data = include_str!("./fixtures/wanikani_with_reviews.json");
+
+        let response = deserialize_response(response_data.into());
+
+        assert!(response.is_ok());
     }
 }
