@@ -64,16 +64,33 @@ jobs:
             npm run test:unit
           working_directory: frontend
 
+  deploy:
+    docker:
+      - image: cimg/base:2023.06
+    steps:
+      - checkout
+      - run: sudo apt-get update && sudo apt-get install -y curl
+      - run: curl -L https://fly.io/install.sh | sh
+      - run: /home/circleci/.fly/bin/flyctl deploy --remote-only
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  backend:
+  test-and-deploy:
     jobs:
       - backend build
       - backend lint
       - backend test
-  frontend:
-    jobs:
       - frontend lint
       - frontend unit test
+      - deploy:
+          requires:
+            - backend build
+            - backend lint
+            - backend test
+            - frontend lint
+            - frontend unit test
+          filters:
+            branches:
+              only:
+                - main
