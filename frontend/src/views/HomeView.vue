@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BunproSection from '@/components/BunproSection.vue'
 import WaniKani from '@/components/WaniKani.vue'
 </script>
 
@@ -7,8 +8,8 @@ import WaniKani from '@/components/WaniKani.vue'
     <div class="item-container wanikani">
       <WaniKani />
     </div>
-    <div class="item-container">
-      <p>Bunpro</p>
+    <div class="item-container bunpro">
+      <BunproSection />
     </div>
     <div class="item-container">
       <p>Satori</p>
@@ -38,10 +39,19 @@ import WaniKani from '@/components/WaniKani.vue'
   background-color: #df00a9;
   color: rgb(255, 255, 255);
 }
+
+.bunpro {
+  background-color: rgb(239, 239, 239);
+  color: rgb(49, 117, 227);
+}
 </style>
 
 <style>
-.wanikani .loading-indicator {
+.wanikani {
   --accent-color: rgb(227, 219, 219);
+}
+
+.bunpro {
+  --accent-color: rgb(49, 117, 227);
 }
 </style>
