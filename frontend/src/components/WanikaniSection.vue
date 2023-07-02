@@ -37,8 +37,4 @@ type WaniKaniResponse = {
   active_lesson_count: number
   active_review_count: number
 }
-
-type BackendError = {
-  message: string
-}
 </script>
