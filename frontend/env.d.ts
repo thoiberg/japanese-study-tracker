@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
 
-type BackendError = {
+export type BackendError = {
   message: string
 }

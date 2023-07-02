@@ -13,6 +13,7 @@
 import { onMounted, ref, type Ref } from 'vue'
 import LoadingIndicator from './LoadingIndicator.vue'
 import UpdatedTimestamp from './UpdatedTimestamp.vue'
+import type { BackendError } from 'env'
 
 let bunproData: Ref<BunproResponse | null> = ref(null)
 let error: Ref<BackendError | null> = ref(null)
