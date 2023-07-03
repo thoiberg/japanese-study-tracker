@@ -1,8 +1,8 @@
 <template>
-  <div v-if="waniKaniData">
-    <p class="app-stats">Current Lessons: {{ waniKaniData.active_lesson_count }}</p>
-    <p class="app-stats">Current Reviews: {{ waniKaniData.active_review_count }}</p>
-    <UpdatedTimestamp :time-stamp="waniKaniData.data_updated_at" />
+  <div v-if="wanikaniData">
+    <p class="app-stats">Current Lessons: {{ wanikaniData.active_lesson_count }}</p>
+    <p class="app-stats">Current Reviews: {{ wanikaniData.active_review_count }}</p>
+    <UpdatedTimestamp :time-stamp="wanikaniData.data_updated_at" />
   </div>
   <div v-else-if="error">
     <p>{{ error.message }}</p>
@@ -15,8 +15,9 @@ import { onMounted, ref, type Ref } from 'vue'
 import LoadingIndicator from './LoadingIndicator.vue'
 import UpdatedTimestamp from './UpdatedTimestamp.vue'
 import type { BackendError } from 'env'
+import { z } from 'zod'
 
-let waniKaniData: Ref<WaniKaniResponse | null> = ref(null)
+let wanikaniData: Ref<WanikaniResponse | null> = ref(null)
 let error: Ref<BackendError | null> = ref(null)
 
 onMounted(async () => {
@@ -24,7 +25,7 @@ onMounted(async () => {
     const response = await fetch('/api/wanikani')
 
     if (response.ok) {
-      waniKaniData.value = await response.json()
+      wanikaniData.value = WanikaniResponseSchema.parse(await response.json())
     } else {
       error.value = await response.json()
     }
@@ -33,9 +34,11 @@ onMounted(async () => {
   }
 })
 
-type WaniKaniResponse = {
-  data_updated_at: string
-  active_lesson_count: number
-  active_review_count: number
-}
+const WanikaniResponseSchema = z.object({
+  data_updated_at: z.string(),
+  active_lesson_count: z.number(),
+  active_review_count: z.number()
+})
+
+type WanikaniResponse = z.infer<typeof WanikaniResponseSchema>
 </script>

@@ -14,6 +14,7 @@ import { onMounted, ref, type Ref } from 'vue'
 import LoadingIndicator from './LoadingIndicator.vue'
 import UpdatedTimestamp from './UpdatedTimestamp.vue'
 import type { BackendError } from 'env'
+import { z } from 'zod'
 
 let bunproData: Ref<BunproResponse | null> = ref(null)
 let error: Ref<BackendError | null> = ref(null)
@@ -23,7 +24,7 @@ onMounted(async () => {
     const response = await fetch('/api/bunpro')
 
     if (response.ok) {
-      bunproData.value = await response.json()
+      bunproData.value = BunproResponseSchema.parse(await response.json())
     } else {
       error.value = await response.json()
     }
@@ -32,8 +33,10 @@ onMounted(async () => {
   }
 })
 
-type BunproResponse = {
-  data_updated_at: string
-  active_review_count: number
-}
+const BunproResponseSchema = z.object({
+  data_updated_at: z.string(),
+  active_review_count: z.number()
+})
+
+type BunproResponse = z.infer<typeof BunproResponseSchema>
 </script>
