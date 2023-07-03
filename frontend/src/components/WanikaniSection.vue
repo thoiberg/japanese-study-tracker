@@ -25,7 +25,7 @@ onMounted(async () => {
     const response = await fetch('/api/wanikani')
 
     if (response.ok) {
-      wanikaniData.value = WanikaniResponse.parse(await response.json())
+      wanikaniData.value = WanikaniResponseSchema.parse(await response.json())
     } else {
       error.value = await response.json()
     }
@@ -34,11 +34,11 @@ onMounted(async () => {
   }
 })
 
-const WanikaniResponse = z.object({
+const WanikaniResponseSchema = z.object({
   data_updated_at: z.string(),
   active_lesson_count: z.number(),
   active_review_count: z.number()
 })
 
-type WanikaniResponse = z.infer<typeof WanikaniResponse>
+type WanikaniResponse = z.infer<typeof WanikaniResponseSchema>
 </script>

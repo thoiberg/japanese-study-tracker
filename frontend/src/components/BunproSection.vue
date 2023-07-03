@@ -24,7 +24,7 @@ onMounted(async () => {
     const response = await fetch('/api/bunpro')
 
     if (response.ok) {
-      bunproData.value = BunproResponse.parse(await response.json())
+      bunproData.value = BunproResponseSchema.parse(await response.json())
     } else {
       error.value = await response.json()
     }
@@ -33,10 +33,10 @@ onMounted(async () => {
   }
 })
 
-const BunproResponse = z.object({
+const BunproResponseSchema = z.object({
   data_updated_at: z.string(),
   active_review_count: z.number()
 })
 
-type BunproResponse = z.infer<typeof BunproResponse>
+type BunproResponse = z.infer<typeof BunproResponseSchema>
 </script>
