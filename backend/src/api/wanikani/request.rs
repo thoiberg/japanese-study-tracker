@@ -27,11 +27,11 @@ async fn get_summary_data() -> anyhow::Result<WaniKaniResponse> {
         .await?
         .text()
         .await
-        .map(deserialize_response)?
+        .map(|body| deserialize_response(&body))?
 }
 
-fn deserialize_response(response_body: String) -> anyhow::Result<WaniKaniResponse> {
-    let json_data = serde_json::from_str(response_body.as_str())?;
+fn deserialize_response(response_body: &str) -> anyhow::Result<WaniKaniResponse> {
+    let json_data = serde_json::from_str(response_body)?;
 
     Ok(json_data)
 }
@@ -44,7 +44,7 @@ mod test_super {
     fn test_can_deserialize_empty_reviews() {
         let response_data = include_str!("./fixtures/wanikani_with_no_reviews.json");
 
-        let response = deserialize_response(response_data.into());
+        let response = deserialize_response(response_data);
 
         assert!(response.is_ok());
     }
@@ -53,7 +53,7 @@ mod test_super {
     fn test_can_deserialize_with_reviews() {
         let response_data = include_str!("./fixtures/wanikani_with_reviews.json");
 
-        let response = deserialize_response(response_data.into());
+        let response = deserialize_response(response_data);
 
         assert!(response.is_ok());
     }
