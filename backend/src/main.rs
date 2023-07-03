@@ -5,7 +5,7 @@ use tokio::signal;
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-use crate::api::{bunpro::bunpro_handler, wanikani::wanikani_handler};
+use crate::api::{bunpro::bunpro_handler, satori::satori_handler, wanikani::wanikani_handler};
 
 pub mod api;
 
@@ -24,6 +24,7 @@ async fn main() {
         .route("/", get(root_handler))
         .route("/api/wanikani", get(wanikani_handler))
         .route("/api/bunpro", get(bunpro_handler))
+        .route("/api/satori", get(satori_handler))
         .layer(TraceLayer::new_for_http());
 
     let address = SocketAddr::from(([0, 0, 0, 0], 3000));
