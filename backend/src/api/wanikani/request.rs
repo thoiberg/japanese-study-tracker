@@ -44,7 +44,7 @@ mod test_super {
     fn test_can_deserialize_empty_reviews() {
         let response_data = include_str!("./fixtures/wanikani_with_no_reviews.json");
 
-        let response = deserialize_response(response_data.into());
+        let response = deserialize_response(response_data);
 
         assert!(response.is_ok());
     }
@@ -53,7 +53,7 @@ mod test_super {
     fn test_can_deserialize_with_reviews() {
         let response_data = include_str!("./fixtures/wanikani_with_reviews.json");
 
-        let response = deserialize_response(response_data.into());
+        let response = deserialize_response(response_data);
 
         assert!(response.is_ok());
     }

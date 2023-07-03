@@ -42,13 +42,13 @@ mod test_super {
     #[test]
     fn test_bunpro_with_reviews() {
         let with_reviews = include_str!("./fixtures/bunpro_with_reviews.json");
-        let response = serialize_response(String::from(with_reviews));
+        let response = serialize_response(with_reviews);
         assert!(response.is_ok());
     }
 
     #[test]
     fn test_bunpro_with_no_reviews() {
         let with_no_reviews = include_str!("./fixtures/bunpro_with_no_reviews.json");
-        assert!(serialize_response(String::from(with_no_reviews)).is_ok());
+        assert!(serialize_response(with_no_reviews).is_ok());
     }
 }
