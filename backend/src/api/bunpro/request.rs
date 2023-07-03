@@ -26,11 +26,11 @@ async fn get_review_queue() -> anyhow::Result<StudyQueue> {
         .await?
         .text()
         .await
-        .map(serialize_response)?
+        .map(|body| serialize_response(&body))?
 }
 
-fn serialize_response(body: String) -> anyhow::Result<StudyQueue> {
-    let json = serde_json::from_str(body.as_str())?;
+fn serialize_response(body: &str) -> anyhow::Result<StudyQueue> {
+    let json = serde_json::from_str(body)?;
 
     Ok(json)
 }

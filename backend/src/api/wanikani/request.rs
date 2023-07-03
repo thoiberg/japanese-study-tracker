@@ -27,11 +27,11 @@ async fn get_summary_data() -> anyhow::Result<WaniKaniResponse> {
         .await?
         .text()
         .await
-        .map(deserialize_response)?
+        .map(|body| deserialize_response(&body))?
 }
 
-fn deserialize_response(response_body: String) -> anyhow::Result<WaniKaniResponse> {
-    let json_data = serde_json::from_str(response_body.as_str())?;
+fn deserialize_response(response_body: &str) -> anyhow::Result<WaniKaniResponse> {
+    let json_data = serde_json::from_str(response_body)?;
 
     Ok(json_data)
 }
