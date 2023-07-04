@@ -2,14 +2,17 @@ use std::env;
 
 use axum::Json;
 use reqwest::{Client, StatusCode};
+use tokio::try_join;
 
 use crate::api::{internal_error, ErrorResponse};
 
 use super::data::{SatoriCurrentCardsResponse, SatoriData, SatoriNewCardsResponse};
 
 pub async fn satori_handler() -> Result<Json<SatoriData>, (StatusCode, Json<ErrorResponse>)> {
-    let current_cards = get_current_cards().await.map_err(internal_error)?;
-    let new_cards = get_new_cards().await.map_err(internal_error)?;
+    let current_cards = get_current_cards();
+    let new_cards = get_new_cards();
+
+    let (current_cards, new_cards) = try_join!(current_cards, new_cards).map_err(internal_error)?;
 
     let satori_data = SatoriData::new(current_cards, new_cards);
 
