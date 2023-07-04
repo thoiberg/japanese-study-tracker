@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Bunpro from '@/components/BunproSection.vue'
 import WaniKani from '@/components/WanikaniSection.vue'
+import Satori from '@/components/SatoriSection.vue'
 </script>
 
 <template>
@@ -11,8 +12,8 @@ import WaniKani from '@/components/WanikaniSection.vue'
     <div class="item-container bunpro">
       <Bunpro />
     </div>
-    <div class="item-container">
-      <p>Satori</p>
+    <div class="item-container satori">
+      <Satori />
     </div>
     <div class="item-container">
       <p>Anki</p>
@@ -44,6 +45,11 @@ import WaniKani from '@/components/WanikaniSection.vue'
   background-color: rgb(239, 239, 239);
   color: rgb(49, 117, 227);
 }
+
+.satori {
+  background-color: rgb(255, 147, 0);
+  color: rgb(255, 255, 255);
+}
 </style>
 
 <style>
@@ -53,5 +59,9 @@ import WaniKani from '@/components/WanikaniSection.vue'
 
 .bunpro {
   --accent-color: rgb(49, 117, 227);
+}
+
+.satori {
+  --accent-color: rgb(255, 255, 255);
 }
 </style>
