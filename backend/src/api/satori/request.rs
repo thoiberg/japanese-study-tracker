@@ -1,7 +1,7 @@
 use std::env;
 
 use axum::Json;
-use reqwest::{Client, ClientBuilder, StatusCode};
+use reqwest::{Client, StatusCode};
 
 use crate::api::{internal_error, ErrorResponse};
 
@@ -17,7 +17,7 @@ pub async fn satori_handler() -> Result<Json<SatoriData>, (StatusCode, Json<Erro
 }
 
 async fn get_current_cards() -> anyhow::Result<SatoriCurrentCardsResponse> {
-    let client = satori_client()?.build()?;
+    let client = satori_client()?;
 
     client
         .get("https://www.satorireader.com/api/studylist/due/count")
@@ -38,7 +38,6 @@ async fn get_new_cards() -> anyhow::Result<SatoriNewCardsResponse> {
     let client = satori_client()?;
 
     client
-        .build()?
         .get("https://www.satorireader.com/api/studylist/pending-auto-importable/count")
         .send()
         .await?
@@ -53,7 +52,7 @@ fn serialize_new_cards_response(body: &str) -> anyhow::Result<SatoriNewCardsResp
     Ok(json_data)
 }
 
-fn satori_client() -> anyhow::Result<ClientBuilder> {
+fn satori_client() -> anyhow::Result<Client> {
     let satori_cookie = env::var("SATORI_COOKIE")?;
 
     let mut headers = reqwest::header::HeaderMap::new();
@@ -61,7 +60,8 @@ fn satori_client() -> anyhow::Result<ClientBuilder> {
         "Cookie",
         format!("SessionToken={}", satori_cookie).parse().unwrap(),
     );
-    Ok(Client::builder().default_headers(headers))
+
+    Ok(Client::builder().default_headers(headers).build()?)
 }
 
 #[cfg(test)]
