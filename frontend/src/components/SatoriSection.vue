@@ -14,7 +14,7 @@
 import { onMounted, ref, type Ref } from 'vue'
 import LoadingIndicator from './LoadingIndicator.vue'
 import UpdatedTimestamp from './UpdatedTimestamp.vue'
-import type { BackendError } from 'env'
+import { type BackendError, ApiErrorResponse } from '@/utils/errorParsing'
 import { z } from 'zod'
 
 let satoriData: Ref<SatoriResponse | null> = ref(null)
@@ -27,7 +27,7 @@ onMounted(async () => {
     if (response.ok) {
       satoriData.value = SatoriResponseSchema.parse(await response.json())
     } else {
-      error.value = await response.json()
+      error.value = ApiErrorResponse.parse(await response.json())
     }
   } catch (e) {
     error.value = { message: 'Unexpected error occurred.' }

@@ -13,7 +13,7 @@
 import { onMounted, ref, type Ref } from 'vue'
 import LoadingIndicator from './LoadingIndicator.vue'
 import UpdatedTimestamp from './UpdatedTimestamp.vue'
-import type { BackendError } from 'env'
+import { type BackendError, ApiErrorResponse } from '@/utils/errorParsing'
 import { z } from 'zod'
 
 let bunproData: Ref<BunproResponse | null> = ref(null)
@@ -26,7 +26,7 @@ onMounted(async () => {
     if (response.ok) {
       bunproData.value = BunproResponseSchema.parse(await response.json())
     } else {
-      error.value = await response.json()
+      error.value = ApiErrorResponse.parse(await response.json())
     }
   } catch (e) {
     error.value = { message: 'Unexpected error occurred.' }
