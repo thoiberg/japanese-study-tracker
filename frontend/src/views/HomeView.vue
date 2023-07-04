@@ -23,10 +23,17 @@ import Satori from '@/components/SatoriSection.vue'
 
 <style scoped>
 .grid-container {
-  height: 100%;
+  min-height: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
+}
+
+@media screen and (max-width: 726px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+  }
 }
 
 .item-container {
