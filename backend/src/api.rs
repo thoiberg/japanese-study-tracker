@@ -1,6 +1,7 @@
 use axum::{http::StatusCode, Json};
 
 pub mod bunpro;
+pub mod satori;
 pub mod wanikani;
 
 #[derive(serde::Serialize)]
