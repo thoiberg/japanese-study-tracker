@@ -1,4 +1,4 @@
-use std::{env, vec};
+use std::env;
 
 use axum::Json;
 use reqwest::{Client, StatusCode};
@@ -9,9 +9,10 @@ use crate::api::{internal_error, ErrorResponse};
 use super::data::AnkiData;
 
 pub async fn anki_handler() -> Result<Json<AnkiData>, (StatusCode, Json<ErrorResponse>)> {
-    let element_data = get_html_data().await.map_err(internal_error)?;
-
-    let anki_data = AnkiData::new(element_data).map_err(internal_error)?;
+    let anki_data = get_html_data()
+        .await
+        .and_then(AnkiData::new)
+        .map_err(internal_error)?;
 
     Ok(Json(anki_data))
 }
@@ -38,13 +39,10 @@ fn parse_html(html: &str) -> Vec<String> {
 
     let elements = document.select(&card_numbers_selector);
 
-    let mut element_texts: Vec<String> = vec![];
-
-    for element in elements {
-        element_texts.push(element.inner_html());
-    }
-
-    element_texts
+    elements
+        .into_iter()
+        .map(|element| element.inner_html())
+        .collect()
 }
 
 #[cfg(test)]
