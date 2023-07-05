@@ -9,6 +9,10 @@ pub struct AnkiData {
     data_updated_at: DateTime<Utc>,
 }
 
+// TODO: Figure out better errors
+// I want to model specific error states for:
+//   - More/Less fields than expected
+//   - Fields not being parsable into u32
 #[derive(Debug)]
 struct MissingHTMLError;
 
