@@ -1,5 +1,6 @@
 use axum::{http::StatusCode, Json};
 
+pub mod anki;
 pub mod bunpro;
 pub mod satori;
 pub mod wanikani;
