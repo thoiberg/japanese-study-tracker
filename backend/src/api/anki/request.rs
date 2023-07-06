@@ -56,4 +56,12 @@ mod test_super {
 
         assert_eq!(count_values, vec!["0", "0"]);
     }
+
+    #[test]
+    fn test_with_pending_and_new_cards() {
+        let html = include_str!("./fixtures/pending_reviews_and_cards.html");
+        let count_values = parse_html(html);
+
+        assert_eq!(count_values, vec!["79", "1"]);
+    }
 }

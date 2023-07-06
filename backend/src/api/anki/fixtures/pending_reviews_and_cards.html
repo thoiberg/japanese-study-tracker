@@ -1,0 +1,153 @@
+<html lang="en" class="bg-gray"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>
+
+            Decks
+            - AnkiWeb
+
+    </title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/app.css?_=2c33cdf6d75309d9dd2e6649c095c27e" type="text/css" media="screen">
+
+
+    <style>
+        .deckDueNumber {
+            text-align: right;
+            font-size: 0.85rem;
+        }
+    </style>
+
+
+
+
+
+</head>
+<body>
+
+    <nav class="navbar navbar-toggleable-md navbar-light bg-gray">
+        <div class="container">
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="https://ankiweb.net/"><span class="align-middle">AnkiWeb</span> <img id="logo" height="32" width="32" src="/static/anki-logo2.png"></a>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active"><a href="https://ankiweb.net/decks/" class="nav-link">Decks</a></li>
+                        <li class="nav-item "><a href="https://ankiuser.net/edit/" class="nav-link">Add</a></li>
+                        <li class="nav-item "><a href="https://ankiweb.net/search/" class="nav-link">Search</a>
+                        </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                        <li class="nav-item ">
+                            <a href="https://ankiweb.net/account/settings" class="nav-link">Account</a>
+                        </li>
+                        <li class="nav-item"><a href="https://ankiweb.net/account/logout" class="nav-link">Log out</a>
+                        </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+<main class="container">
+
+
+
+
+
+
+
+<h1>Decks</h1>
+
+<div class="container-fluid px-0">
+
+
+            <div class="row light-bottom-border">
+                <div class="col-7 col-sm-8 col-lg-9" style="overflow: hidden; text-overflow: ellipsis;">
+                    <button class="btn btn-link pl-0" data-full="Japanese" id="did1598794787246" onclick="decks.select(this.id);">
+                        &nbsp;&nbsp;&nbsp;Japanese</button>
+                </div>
+
+                <div class="col-1">
+                    <div class="deckDueNumber">
+                            <font color="#007700">79</font>
+                    </div>
+                    <div class="deckDueNumber">
+                            <font color="#000099">1</font>
+                    </div>
+                </div>
+                <div class="col-4 col-sm-3 col-lg-2">
+                    <div class="dropdown">
+                        <div style="float:right;">
+                            <button class="btn btn-link dropdown-toggle" type="button" id="deckActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="deckOptions">
+                                <button class="dropdown-item" type="button" onclick="decks.rename('1598794787246')">
+                                    Rename
+                                </button>
+                                <button class="dropdown-item" type="button" onclick="decks.share('1598794787246')">
+                                    Share
+                                </button>
+                                <button class="dropdown-item" type="button" onclick="decks.rem('1598794787246')">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+</div>
+
+<br>
+
+<div class="row">
+    <div class="col text-center">
+        Disk usage: 8.25MB
+        (0.00MB <a href="/media/manage">media</a>)
+    </div>
+</div>
+<div class="row">
+    <div class="col text-center">
+        <a href="/shared/decks/" class="btn btn-secondary">Get Shared Decks</a>
+        <a href="/shared/mine" class="btn btn-secondary">My Shared Items</a>
+        <button class="btn btn-secondary" onclick="decks.create()">Create Deck</button>
+    </div>
+</div>
+
+
+
+</main>
+
+    <div class="container-fluid bg-gray">
+        <ul class="nav justify-content-center">
+            <li class="nav-item"><a href="https://apps.ankiweb.net" class="nav-link">Apps</a></li>
+            <li class="nav-item"><a href="/about" class="nav-link">About</a>
+            </li>
+                <li class="nav-item"><a href="https://help.ankiweb.net" class="nav-link">Support</a></li>
+            <li class="nav-item"><a href="/account/terms" class="nav-link">Terms</a>
+            </li>
+            <li class="nav-item"><a href="/account/privacy" class="nav-link">Privacy</a>
+            </li>
+        </ul>
+    </div>
+
+<script src="/static/js/vendor/jquery.min.js?_=8fb8fee4fcc3cc86ff6c724154c49c42" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+
+    <script src="/static/js/decks.js?_=d78c6b5b7915afd7777437dc66af6903" type="text/javascript"></script>
+
+    <script>
+        const decks = new anki.DecksList("https://ankiuser.net");
+    </script>
+
+
+
+</body></html>
