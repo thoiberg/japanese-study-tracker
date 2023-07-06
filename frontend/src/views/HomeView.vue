@@ -2,6 +2,7 @@
 import Bunpro from '@/components/BunproSection.vue'
 import WaniKani from '@/components/WanikaniSection.vue'
 import Satori from '@/components/SatoriSection.vue'
+import Anki from '@/components/AnkiSection.vue'
 </script>
 
 <template>
@@ -15,8 +16,8 @@ import Satori from '@/components/SatoriSection.vue'
     <div class="item-container satori">
       <Satori />
     </div>
-    <div class="item-container">
-      <p>Anki</p>
+    <div class="item-container anki">
+      <Anki />
     </div>
   </main>
 </template>
@@ -61,5 +62,10 @@ import Satori from '@/components/SatoriSection.vue'
 .satori {
   --accent-color: rgb(255, 255, 255);
   --main-color: rgb(255, 147, 0);
+}
+
+.anki {
+  --accent-color: rgb(75, 176, 250);
+  --main-color: rgb(238, 238, 238);
 }
 </style>
