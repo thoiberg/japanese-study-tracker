@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 
 import BunproSectionVue from '../BunproSection.vue'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
+import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
 
 describe('BunproSection', () => {
   const fetchMock = vi.fn()
@@ -39,7 +40,10 @@ describe('BunproSection', () => {
       const wrapper = mount(BunproSectionVue)
       await flushPromises()
 
-      expect(wrapper.text()).toContain(8)
+      expect(wrapper.text()).toContain('Current Reviews: 8')
+      expect(wrapper.findComponent(UpdatedTimestampVue).text()).toEqual(
+        'Data Fetched at: 24/6/23, 3:00 pm'
+      )
     })
   })
 

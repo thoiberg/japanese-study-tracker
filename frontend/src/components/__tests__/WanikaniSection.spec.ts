@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 
 import WanikaniSectionVue from '../WanikaniSection.vue'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
+import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
 
 describe('WaniKani', () => {
   const fetchMock = vi.fn()
@@ -40,7 +41,11 @@ describe('WaniKani', () => {
       const wrapper = mount(WanikaniSectionVue)
       await flushPromises()
 
-      expect(wrapper.text()).toContain('66')
+      expect(wrapper.text()).toContain('New Lessons: 66')
+      expect(wrapper.text()).toContain('Current Reviews: 15')
+      expect(wrapper.findComponent(UpdatedTimestampVue).text()).toEqual(
+        'Data Fetched at: 24/6/23, 3:00 pm'
+      )
     })
   })
 
