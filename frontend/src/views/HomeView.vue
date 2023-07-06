@@ -50,7 +50,7 @@ import Anki from '@/components/AnkiSection.vue'
 
 <style>
 .wanikani {
-  --accent-color: hsl(0, 0, 100%);
+  --accent-color: hsl(0, 0%, 100%);
   --main-color: hsl(315, 100%, 44%);
 }
 
@@ -60,12 +60,12 @@ import Anki from '@/components/AnkiSection.vue'
 }
 
 .satori {
-  --accent-color: hsl(0, 0, 100%);
+  --accent-color: hsl(0, 0%, 100%);
   --main-color: hsl(35, 100%, 50%);
 }
 
 .anki {
-  --accent-color: hsl(205, 95, 64);
+  --accent-color: hsl(205, 95%, 64%);
   --main-color: hsl(0, 0%, 93%);
 }
 </style>
