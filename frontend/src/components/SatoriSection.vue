@@ -1,7 +1,7 @@
 <template>
-  <div v-if="satoriData">
-    <p class="app-stats">Current Reviews: {{ satoriData.active_review_count }}</p>
-    <p class="app-stats">New Cards: {{ satoriData.new_card_count }}</p>
+  <div class="app-stats" v-if="satoriData">
+    <p>Current Reviews: {{ satoriData.active_review_count }}</p>
+    <p>New Cards: {{ satoriData.new_card_count }}</p>
     <UpdatedTimestamp :time-stamp="satoriData.data_updated_at" />
   </div>
   <div v-else-if="error">

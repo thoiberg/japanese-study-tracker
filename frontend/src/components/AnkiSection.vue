@@ -1,7 +1,7 @@
 <template>
-  <div v-if="ankiData">
-    <p class="app-stats">Current Reviews: {{ ankiData.active_review_count }}</p>
-    <p class="app-stats">New Cards: {{ ankiData.new_card_count }}</p>
+  <div class="app-stats" v-if="ankiData">
+    <p>Current Reviews: {{ ankiData.active_review_count }}</p>
+    <p>New Cards: {{ ankiData.new_card_count }}</p>
     <UpdatedTimestamp :time-stamp="ankiData.data_updated_at" />
   </div>
   <div v-else-if="error">

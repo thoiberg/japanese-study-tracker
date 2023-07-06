@@ -1,7 +1,7 @@
 <template>
-  <div v-if="wanikaniData">
-    <p class="app-stats">Current Reviews: {{ wanikaniData.active_review_count }}</p>
-    <p class="app-stats">New Lessons: {{ wanikaniData.active_lesson_count }}</p>
+  <div class="app-stats" v-if="wanikaniData">
+    <p>Current Reviews: {{ wanikaniData.active_review_count }}</p>
+    <p>New Lessons: {{ wanikaniData.active_lesson_count }}</p>
     <UpdatedTimestamp :time-stamp="wanikaniData.data_updated_at" />
   </div>
   <div v-else-if="error">

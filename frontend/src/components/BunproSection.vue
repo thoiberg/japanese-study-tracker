@@ -1,6 +1,6 @@
 <template>
-  <div v-if="bunproData">
-    <p class="app-stats">Current Reviews: {{ bunproData.active_review_count }}</p>
+  <div class="app-stats" v-if="bunproData">
+    <p>Current Reviews: {{ bunproData.active_review_count }}</p>
     <UpdatedTimestamp :time-stamp="bunproData.data_updated_at" />
   </div>
   <div v-else-if="error">
