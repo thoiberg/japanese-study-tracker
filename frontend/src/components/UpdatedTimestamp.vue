@@ -1,5 +1,5 @@
 <template>
-  <p>Data Fetched at: {{ formatDateTime(props.timeStamp) }}</p>
+  <p class="fetched-stats">Data Fetched at: {{ formatDateTime(props.timeStamp) }}</p>
 </template>
 
 <script setup lang="ts">
@@ -17,3 +17,9 @@ function formatDateTime(timeStamp: string) {
   }).format(date)
 }
 </script>
+
+<style scoped>
+.fetched-stats {
+  font-size: 1rem;
+}
+</style>

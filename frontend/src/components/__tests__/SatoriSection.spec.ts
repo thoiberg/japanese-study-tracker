@@ -2,6 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, vi, it, expect } from 'vitest'
 import SatoriSectionVue from '../SatoriSection.vue'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
+import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
 
 describe('SatoriSection', () => {
   const fetchMock = vi.fn()
@@ -40,6 +41,10 @@ describe('SatoriSection', () => {
       await flushPromises()
 
       expect(wrapper.text()).toContain('Current Reviews: 8')
+      expect(wrapper.text()).toContain('New Cards: 20')
+      expect(wrapper.findComponent(UpdatedTimestampVue).text()).toEqual(
+        'Data Fetched at: 24/6/23, 3:00 pm'
+      )
     })
   })
 

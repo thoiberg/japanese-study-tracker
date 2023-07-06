@@ -50,22 +50,22 @@ import Anki from '@/components/AnkiSection.vue'
 
 <style>
 .wanikani {
-  --accent-color: rgb(255, 255, 255);
-  --main-color: #df00a9;
+  --accent-color: hsl(0, 0%, 100%);
+  --main-color: hsl(315, 100%, 44%);
 }
 
 .bunpro {
-  --accent-color: rgb(49, 117, 227);
-  --main-color: rgb(239, 239, 239);
+  --accent-color: hsl(0, 0%, 94%);
+  --main-color: hsl(217, 76%, 54%);
 }
 
 .satori {
-  --accent-color: rgb(255, 255, 255);
-  --main-color: rgb(255, 147, 0);
+  --accent-color: hsl(0, 0%, 100%);
+  --main-color: hsl(35, 100%, 50%);
 }
 
 .anki {
-  --accent-color: rgb(75, 176, 250);
-  --main-color: rgb(238, 238, 238);
+  --accent-color: hsl(205, 95%, 64%);
+  --main-color: hsl(0, 0%, 93%);
 }
 </style>
