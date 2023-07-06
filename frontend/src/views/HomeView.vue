@@ -66,6 +66,6 @@ import Anki from '@/components/AnkiSection.vue'
 
 .anki {
   --accent-color: rgb(75, 176, 250);
-  --main-color: #eee;
+  --main-color: rgb(238, 238, 238);
 }
 </style>
