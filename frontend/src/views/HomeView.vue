@@ -55,8 +55,8 @@ import Anki from '@/components/AnkiSection.vue'
 }
 
 .bunpro {
-  --accent-color: hsl(217, 76%, 54%);
-  --main-color: hsl(0, 0%, 94%);
+  --accent-color: hsl(0, 0%, 94%);
+  --main-color: hsl(217, 76%, 54%);
 }
 
 .satori {
