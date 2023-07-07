@@ -24,7 +24,7 @@ import Anki from '@/components/AnkiSection.vue'
 
 <style scoped>
 .grid-container {
-  min-height: 100%;
+  height: 100dvh;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
@@ -32,7 +32,6 @@ import Anki from '@/components/AnkiSection.vue'
 
 @media screen and (max-width: 726px) {
   .grid-container {
-    max-height: 100dvh;
     grid-template-columns: 1fr;
     grid-template-rows: repeat(4, 100dvh);
     scroll-snap-type: y mandatory;
