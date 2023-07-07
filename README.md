@@ -8,8 +8,10 @@ Run using docker compose. Before running docker-compose you must set the followi
 ```bash
 export WANIKANI_API_TOKEN="<my-api-token>"
 export BUNPRO_API_TOKEN="<my-api-token>"
+export SATORI_COOKIE="<session-cookie>"
+export ANKIWEB_COOKIE="<session-cookie>"
 # OR:
-cp .env.development.sample .env.development # app the right tokens in
+cp .env.development.sample .env.development # add the right tokens in
 ```
 
 ```bash
@@ -18,11 +20,16 @@ docker compose up --build
 
 ## Testing
 ### Backend
+
+All commands are run from the backend directory.
+
 ```bash
 cargo test
 ```
 
 ### Frontend
+All commands are run from the frontend directory.
+
 ```bash
 npm run test:unit
 ```
