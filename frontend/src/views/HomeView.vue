@@ -36,10 +36,10 @@ import Anki from '@/components/AnkiSection.vue'
     grid-template-rows: repeat(4, 100dvh);
     scroll-snap-type: y mandatory;
     overflow-y: auto;
-  }
 
-  .item-container {
-    scroll-snap-align: start;
+    & > * {
+      scroll-snap-align: start;
+    }
   }
 }
 
