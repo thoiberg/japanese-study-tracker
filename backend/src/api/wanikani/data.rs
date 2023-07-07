@@ -1,21 +1,21 @@
 use chrono::{DateTime, Utc};
 
 #[derive(serde::Deserialize)]
-pub struct WaniKaniResponse {
+pub struct WanikaniSummaryResponse {
     object: String,
     url: String,
     data_updated_at: DateTime<Utc>,
-    data: DataStructure,
+    data: SummaryDataStructure,
 }
 
 #[derive(serde::Deserialize)]
-pub struct DataStructure {
+pub struct SummaryDataStructure {
     lessons: Vec<Lesson>,
     next_reviews_at: DateTime<Utc>,
     reviews: Vec<Review>,
 }
 
-impl DataStructure {
+impl SummaryDataStructure {
     fn total_reviews(&self) -> u32 {
         self.reviews
             .iter()
@@ -52,17 +52,16 @@ impl Lesson {
 
 type Review = Lesson;
 
-// TODO: Find a better name
 #[derive(serde::Serialize)]
-pub struct WaniKaniDataForFrontend {
+pub struct WanikaniData {
     data_updated_at: DateTime<Utc>,
     active_lesson_count: u32,
     active_review_count: u32,
 }
 
-impl From<WaniKaniResponse> for WaniKaniDataForFrontend {
-    fn from(value: WaniKaniResponse) -> Self {
-        WaniKaniDataForFrontend {
+impl From<WanikaniSummaryResponse> for WanikaniData {
+    fn from(value: WanikaniSummaryResponse) -> Self {
+        WanikaniData {
             data_updated_at: value.data_updated_at,
             active_lesson_count: value.data.total_lessons(),
             active_review_count: value.data.current_reviews(),
