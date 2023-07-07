@@ -5,17 +5,16 @@ use reqwest::Client;
 
 use crate::api::{internal_error, ErrorResponse};
 
-use super::data::{WaniKaniDataForFrontend, WaniKaniResponse};
+use super::data::{WanikaniData, WanikaniSummaryResponse};
 
-pub async fn wanikani_handler(
-) -> Result<Json<WaniKaniDataForFrontend>, (StatusCode, Json<ErrorResponse>)> {
+pub async fn wanikani_handler() -> Result<Json<WanikaniData>, (StatusCode, Json<ErrorResponse>)> {
     let summary = get_summary_data().await.map_err(internal_error)?;
     // TODO: have I studied today (possibly last study time?)
 
     Ok(Json(summary.into()))
 }
 
-async fn get_summary_data() -> anyhow::Result<WaniKaniResponse> {
+async fn get_summary_data() -> anyhow::Result<WanikaniSummaryResponse> {
     let api_token = env::var("WANIKANI_API_TOKEN")?;
     let client = Client::new()
         .get("https://api.wanikani.com/v2/summary")
@@ -30,7 +29,7 @@ async fn get_summary_data() -> anyhow::Result<WaniKaniResponse> {
         .map(|body| deserialize_response(&body))?
 }
 
-fn deserialize_response(response_body: &str) -> anyhow::Result<WaniKaniResponse> {
+fn deserialize_response(response_body: &str) -> anyhow::Result<WanikaniSummaryResponse> {
     let json_data = serde_json::from_str(response_body)?;
 
     Ok(json_data)
