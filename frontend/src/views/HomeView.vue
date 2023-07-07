@@ -32,8 +32,15 @@ import Anki from '@/components/AnkiSection.vue'
 
 @media screen and (max-width: 726px) {
   .grid-container {
+    max-height: 100dvh;
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-rows: repeat(4, 100dvh);
+    scroll-snap-type: y mandatory;
+    overflow-y: auto;
+  }
+
+  .item-container {
+    scroll-snap-align: start;
   }
 }
 
