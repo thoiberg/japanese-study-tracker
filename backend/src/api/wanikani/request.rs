@@ -1,10 +1,11 @@
+use core::fmt;
 use std::env;
 
 use axum::{extract::State, http::StatusCode, Json};
 use redis::{AsyncCommands, RedisError};
 use reqwest::Client;
 
-use crate::api::{internal_error, ErrorResponse};
+use crate::api::{self, internal_error, ErrorResponse};
 
 use super::data::{WanikaniData, WanikaniSummaryResponse};
 
@@ -19,33 +20,59 @@ pub async fn wanikani_handler(
     Ok(Json(wanikani_data))
 }
 
+#[derive(Debug)]
+struct MissingRedisError {}
+
+impl std::error::Error for MissingRedisError {}
+
+impl fmt::Display for MissingRedisError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Redis no there")
+    }
+}
+
 impl WanikaniData {
+    pub async fn retrieve_from_cache(
+        redis_client: &Option<redis::Client>,
+        cache_key: &str,
+    ) -> anyhow::Result<Self> {
+        let client = redis_client.as_ref().ok_or(MissingRedisError {})?;
+        let mut conn = client.get_async_connection().await?;
+        let cached_data: String = conn.get(cache_key).await?;
+
+        let wanikani_data = serde_json::from_str::<Self>(&cached_data)?;
+
+        Ok(wanikani_data)
+    }
+
+    pub async fn write_to_cache(
+        redis_client: &Option<redis::Client>,
+        cache_key: &str,
+        data: &Self,
+    ) -> anyhow::Result<()> {
+        let client = redis_client.as_ref().ok_or(MissingRedisError {})?;
+        let mut conn = client.get_async_connection().await?;
+
+        let json_data = serde_json::to_string(&data)?;
+        let set_response: Result<(), RedisError> = conn.set(cache_key, json_data).await;
+
+        Ok(set_response?)
+    }
+
     pub async fn get(redis_client: Option<redis::Client>) -> anyhow::Result<Self> {
         let cache_key = "wanikani_data";
-        if let Some(client) = &redis_client {
-            if let Ok(mut conn) = client.get_async_connection().await {
-                let cached_data: Result<String, RedisError> = conn.get(cache_key).await;
 
-                if let Ok(cached_data) = cached_data {
-                    if let Ok(wanikani_data) = serde_json::from_str::<Self>(&cached_data) {
-                        return Ok(wanikani_data);
-                    }
-                }
-            }
-        }
-        let api_data = Self::get_summary_data().await;
+        let cache_data = Self::retrieve_from_cache(&redis_client, cache_key).await;
 
-        if let Some(client) = &redis_client {
-            if let Ok(mut conn) = client.get_async_connection().await {
-                if let Ok(api_data) = &api_data {
-                    if let Ok(data) = serde_json::to_string(api_data) {
-                        let _: Result<(), RedisError> = conn.set(cache_key, data).await;
-                    }
-                }
-            }
+        if cache_data.is_ok() {
+            return cache_data;
         }
 
-        api_data
+        let api_data = Self::get_summary_data().await?;
+
+        let _ = Self::write_to_cache(&redis_client, cache_key, &api_data).await;
+
+        Ok(api_data)
     }
 
     pub async fn get_summary_data() -> anyhow::Result<Self> {
