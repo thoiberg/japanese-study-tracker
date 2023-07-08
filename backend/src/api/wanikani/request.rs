@@ -5,7 +5,7 @@ use axum::{extract::State, http::StatusCode, Json};
 use redis::{AsyncCommands, RedisError};
 use reqwest::Client;
 
-use crate::api::{self, internal_error, ErrorResponse};
+use crate::api::{internal_error, ErrorResponse};
 
 use super::data::{WanikaniData, WanikaniSummaryResponse};
 
@@ -35,14 +35,14 @@ impl WanikaniData {
     pub async fn retrieve_from_cache(
         redis_client: &Option<redis::Client>,
         cache_key: &str,
-    ) -> anyhow::Result<Self> {
-        let client = redis_client.as_ref().ok_or(MissingRedisError {})?;
-        let mut conn = client.get_async_connection().await?;
-        let cached_data: String = conn.get(cache_key).await?;
+    ) -> Option<Self> {
+        let client = redis_client.as_ref()?;
+        let mut conn = client.get_async_connection().await.ok()?;
+        let cached_data: String = conn.get(cache_key).await.ok()?;
 
-        let wanikani_data = serde_json::from_str::<Self>(&cached_data)?;
+        let wanikani_data = serde_json::from_str::<Self>(&cached_data).ok()?;
 
-        Ok(wanikani_data)
+        Some(wanikani_data)
     }
 
     pub async fn write_to_cache(
@@ -64,8 +64,8 @@ impl WanikaniData {
 
         let cache_data = Self::retrieve_from_cache(&redis_client, cache_key).await;
 
-        if cache_data.is_ok() {
-            return cache_data;
+        if let Some(cache_data) = cache_data {
+            return Ok(cache_data);
         }
 
         let api_data = Self::get_summary_data().await?;
