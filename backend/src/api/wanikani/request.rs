@@ -43,8 +43,9 @@ impl WanikaniData {
         let mut conn = client.get_async_connection().await?;
 
         let json_data = serde_json::to_string(&data)?;
-        // TODO: Set Redis expiry
-        let set_response: Result<(), RedisError> = conn.set(cache_key, json_data).await;
+        let expiry_time: usize = 3600; // 1 hour
+        let set_response: Result<(), RedisError> =
+            conn.set_ex(cache_key, json_data, expiry_time).await;
 
         Ok(set_response?)
     }
