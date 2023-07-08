@@ -1,4 +1,4 @@
-use std::{fs, net::SocketAddr};
+use std::{env, fs, net::SocketAddr};
 
 use axum::{http::StatusCode, response::Html, routing::get, Router};
 use tokio::signal;
@@ -21,6 +21,8 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    let redis_client = get_redis_connection();
+
     let app = Router::new()
         .merge(Router::new().nest_service("/assets", ServeDir::new("dist/assets")))
         .route("/", get(root_handler))
@@ -28,6 +30,7 @@ async fn main() {
         .route("/api/bunpro", get(bunpro_handler))
         .route("/api/satori", get(satori_handler))
         .route("/api/anki", get(anki_handler))
+        .with_state(redis_client)
         .layer(TraceLayer::new_for_http());
 
     let address = SocketAddr::from(([0, 0, 0, 0], 3000));
@@ -73,4 +76,12 @@ async fn shutdown_signal() {
     }
 
     tracing::info!("signal received, starting graceful shutdown");
+}
+
+fn get_redis_connection() -> Option<redis::Client> {
+    let redis_client: anyhow::Result<redis::Client> = env::var("REDIS_URL")
+        .map_err(|err| err.into())
+        .and_then(|redis_url| Ok(redis::Client::open(redis_url)?));
+
+    redis_client.ok()
 }
