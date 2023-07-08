@@ -1,6 +1,7 @@
 use core::fmt;
 use std::env;
 
+use anyhow::anyhow;
 use axum::{extract::State, http::StatusCode, Json};
 use redis::{AsyncCommands, RedisError};
 use reqwest::Client;
@@ -18,17 +19,6 @@ pub async fn wanikani_handler(
     // TODO: have I studied today (possibly last study time?)
 
     Ok(Json(wanikani_data))
-}
-
-#[derive(Debug)]
-struct MissingRedisError {}
-
-impl std::error::Error for MissingRedisError {}
-
-impl fmt::Display for MissingRedisError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Redis no there")
-    }
 }
 
 impl WanikaniData {
@@ -50,10 +40,13 @@ impl WanikaniData {
         cache_key: &str,
         data: &Self,
     ) -> anyhow::Result<()> {
-        let client = redis_client.as_ref().ok_or(MissingRedisError {})?;
+        let client = redis_client
+            .as_ref()
+            .ok_or(anyhow!("No Redis Client set"))?;
         let mut conn = client.get_async_connection().await?;
 
         let json_data = serde_json::to_string(&data)?;
+        // TODO: Set Redis expiry
         let set_response: Result<(), RedisError> = conn.set(cache_key, json_data).await;
 
         Ok(set_response?)
