@@ -1,14 +1,17 @@
 use std::env;
 
-use axum::{http::StatusCode, Json};
+use axum::{extract::State, http::StatusCode, Json};
+use redis::{AsyncCommands, RedisError};
 use reqwest::Client;
 
 use crate::api::{internal_error, ErrorResponse};
 
 use super::data::{WanikaniData, WanikaniSummaryResponse};
 
-pub async fn wanikani_handler() -> Result<Json<WanikaniData>, (StatusCode, Json<ErrorResponse>)> {
-    let wanikani_data = WanikaniData::get_summary_data()
+pub async fn wanikani_handler(
+    State(redis_client): State<Option<redis::Client>>,
+) -> Result<Json<WanikaniData>, (StatusCode, Json<ErrorResponse>)> {
+    let wanikani_data = WanikaniData::get(redis_client)
         .await
         .map_err(internal_error)?;
     // TODO: have I studied today (possibly last study time?)
@@ -17,6 +20,34 @@ pub async fn wanikani_handler() -> Result<Json<WanikaniData>, (StatusCode, Json<
 }
 
 impl WanikaniData {
+    pub async fn get(redis_client: Option<redis::Client>) -> anyhow::Result<Self> {
+        let cache_key = "wanikani_data";
+        if let Some(client) = &redis_client {
+            if let Ok(mut conn) = client.get_async_connection().await {
+                let cached_data: Result<String, RedisError> = conn.get(cache_key).await;
+
+                if let Ok(cached_data) = cached_data {
+                    if let Ok(wanikani_data) = serde_json::from_str::<Self>(&cached_data) {
+                        return Ok(wanikani_data);
+                    }
+                }
+            }
+        }
+        let api_data = Self::get_summary_data().await;
+
+        if let Some(client) = &redis_client {
+            if let Ok(mut conn) = client.get_async_connection().await {
+                if let Ok(api_data) = &api_data {
+                    if let Ok(data) = serde_json::to_string(api_data) {
+                        let _: Result<(), RedisError> = conn.set(cache_key, data).await;
+                    }
+                }
+            }
+        }
+
+        api_data
+    }
+
     pub async fn get_summary_data() -> anyhow::Result<Self> {
         let api_token = env::var("WANIKANI_API_TOKEN")?;
         let client = Client::new()
