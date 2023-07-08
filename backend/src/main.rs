@@ -79,11 +79,9 @@ async fn shutdown_signal() {
 }
 
 fn get_redis_connection() -> Option<redis::Client> {
-    let redis_url = env::var("REDIS_URL").ok()?;
-    redis::Client::open(redis_url).ok()
+    let redis_client: anyhow::Result<redis::Client> = env::var("REDIS_URL")
+        .map_err(|err| err.into())
+        .and_then(|redis_url| Ok(redis::Client::open(redis_url)?));
 
-    // TODO: chain all the results and then just convert the final result to an option
-    // env::var("REDIS_URL")
-    //     .and_then(|redis_url| redis::Client::open(redis_url))
-    //     .ok()
+    redis_client.ok()
 }
