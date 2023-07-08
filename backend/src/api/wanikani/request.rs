@@ -1,4 +1,3 @@
-use core::fmt;
 use std::env;
 
 use anyhow::anyhow;
@@ -24,12 +23,26 @@ pub async fn wanikani_handler(
 impl WanikaniData {
     async fn cache_read(redis_client: &Option<redis::Client>, cache_key: &str) -> Option<Self> {
         let client = redis_client.as_ref()?;
-        let mut conn = client.get_async_connection().await.ok()?;
-        let cached_data: String = conn.get(cache_key).await.ok()?;
+        let mut conn = client
+            .get_async_connection()
+            .await
+            .map_err(Self::cache_log)
+            .ok()?;
+        let cached_data: String = conn.get(cache_key).await.map_err(Self::cache_log).ok()?;
 
-        let wanikani_data = serde_json::from_str::<Self>(&cached_data).ok()?;
+        let wanikani_data = serde_json::from_str::<Self>(&cached_data)
+            .map_err(Self::cache_log)
+            .ok()?;
 
         Some(wanikani_data)
+    }
+
+    fn cache_log<E>(err: E)
+    where
+        E: Into<anyhow::Error>,
+    {
+        let redis_warning = format!("redis issue: {}", err.into());
+        tracing::warn!(redis_warning);
     }
 
     async fn cache_write(
@@ -61,7 +74,9 @@ impl WanikaniData {
 
         let api_data = Self::get_summary_data().await?;
 
-        let _ = Self::cache_write(&redis_client, cache_key, &api_data).await;
+        let write_result = Self::cache_write(&redis_client, cache_key, &api_data).await;
+
+        let _ = write_result.map_err(Self::cache_log);
 
         Ok(api_data)
     }
