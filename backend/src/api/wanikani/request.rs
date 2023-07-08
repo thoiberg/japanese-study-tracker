@@ -22,7 +22,7 @@ pub async fn wanikani_handler(
 }
 
 impl WanikaniData {
-    pub async fn cache_read(redis_client: &Option<redis::Client>, cache_key: &str) -> Option<Self> {
+    async fn cache_read(redis_client: &Option<redis::Client>, cache_key: &str) -> Option<Self> {
         let client = redis_client.as_ref()?;
         let mut conn = client.get_async_connection().await.ok()?;
         let cached_data: String = conn.get(cache_key).await.ok()?;
@@ -32,7 +32,7 @@ impl WanikaniData {
         Some(wanikani_data)
     }
 
-    pub async fn cache_write(
+    async fn cache_write(
         redis_client: &Option<redis::Client>,
         cache_key: &str,
         data: &Self,
@@ -66,7 +66,7 @@ impl WanikaniData {
         Ok(api_data)
     }
 
-    pub async fn get_summary_data() -> anyhow::Result<Self> {
+    async fn get_summary_data() -> anyhow::Result<Self> {
         let api_token = env::var("WANIKANI_API_TOKEN")?;
         let client = Client::new()
             .get("https://api.wanikani.com/v2/summary")
