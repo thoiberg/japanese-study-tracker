@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.71"
+async-trait = "0.1.71"
 axum = { version = "0.6.18", features = ["macros", "tracing"] }
 chrono = { version = "0.4.26", features = ["serde"] }
 indexmap = "2.0.0"
