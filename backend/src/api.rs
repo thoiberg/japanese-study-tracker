@@ -2,6 +2,7 @@ use axum::{http::StatusCode, Json};
 
 pub mod anki;
 pub mod bunpro;
+mod cacheable;
 pub mod satori;
 pub mod wanikani;
 

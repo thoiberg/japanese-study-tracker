@@ -1,11 +1,10 @@
 use std::env;
 
-use anyhow::anyhow;
+use async_trait::async_trait;
 use axum::{extract::State, http::StatusCode, Json};
-use redis::{AsyncCommands, RedisError};
 use reqwest::Client;
 
-use crate::api::{internal_error, ErrorResponse};
+use crate::api::{cacheable::Cacheable, internal_error, ErrorResponse};
 
 use super::data::{WanikaniData, WanikaniSummaryResponse};
 
@@ -20,68 +19,17 @@ pub async fn wanikani_handler(
     Ok(Json(wanikani_data))
 }
 
-impl WanikaniData {
-    async fn cache_read(redis_client: &Option<redis::Client>, cache_key: &str) -> Option<Self> {
-        let client = redis_client.as_ref()?;
-        let mut conn = client
-            .get_async_connection()
-            .await
-            .map_err(Self::cache_log)
-            .ok()?;
-        let cached_data: String = conn.get(cache_key).await.map_err(Self::cache_log).ok()?;
-
-        let wanikani_data = serde_json::from_str::<Self>(&cached_data)
-            .map_err(Self::cache_log)
-            .ok()?;
-
-        Some(wanikani_data)
+#[async_trait]
+impl Cacheable for WanikaniData {
+    fn cache_key() -> String {
+        "wanikani_data".into()
     }
 
-    fn cache_log<E>(err: E)
-    where
-        E: Into<anyhow::Error>,
-    {
-        let redis_warning = format!("redis issue: {}", err.into());
-        tracing::warn!(redis_warning);
+    fn ttl() -> usize {
+        3600
     }
 
-    async fn cache_write(
-        redis_client: &Option<redis::Client>,
-        cache_key: &str,
-        data: &Self,
-    ) -> anyhow::Result<()> {
-        let client = redis_client
-            .as_ref()
-            .ok_or(anyhow!("No Redis Client set"))?;
-        let mut conn = client.get_async_connection().await?;
-
-        let json_data = serde_json::to_string(&data)?;
-        let expiry_time: usize = 3600; // 1 hour
-        let set_response: Result<(), RedisError> =
-            conn.set_ex(cache_key, json_data, expiry_time).await;
-
-        Ok(set_response?)
-    }
-
-    pub async fn get(redis_client: Option<redis::Client>) -> anyhow::Result<Self> {
-        let cache_key = "wanikani_data";
-
-        let cache_data = Self::cache_read(&redis_client, cache_key).await;
-
-        if let Some(cache_data) = cache_data {
-            return Ok(cache_data);
-        }
-
-        let api_data = Self::get_summary_data().await?;
-
-        let write_result = Self::cache_write(&redis_client, cache_key, &api_data).await;
-
-        let _ = write_result.map_err(Self::cache_log);
-
-        Ok(api_data)
-    }
-
-    async fn get_summary_data() -> anyhow::Result<Self> {
+    async fn api_fetch() -> anyhow::Result<Self> {
         let api_token = env::var("WANIKANI_API_TOKEN")?;
         let client = Client::new()
             .get("https://api.wanikani.com/v2/summary")
@@ -97,7 +45,9 @@ impl WanikaniData {
 
         Ok(api_response?.into())
     }
+}
 
+impl WanikaniData {
     fn deserialize_response(response_body: &str) -> anyhow::Result<WanikaniSummaryResponse> {
         let json_data = serde_json::from_str(response_body)?;
 
