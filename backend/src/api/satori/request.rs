@@ -1,22 +1,39 @@
 use std::env;
 
-use axum::Json;
+use async_trait::async_trait;
+use axum::{extract::State, Json};
 use reqwest::{Client, StatusCode};
 use tokio::try_join;
 
-use crate::api::{internal_error, ErrorResponse};
+use crate::api::{cacheable::Cacheable, internal_error, ErrorResponse};
 
 use super::data::{SatoriCurrentCardsResponse, SatoriData, SatoriNewCardsResponse};
 
-pub async fn satori_handler() -> Result<Json<SatoriData>, (StatusCode, Json<ErrorResponse>)> {
-    let current_cards = get_current_cards();
-    let new_cards = get_new_cards();
-
-    let (current_cards, new_cards) = try_join!(current_cards, new_cards).map_err(internal_error)?;
-
-    let satori_data = SatoriData::new(current_cards, new_cards);
+pub async fn satori_handler(
+    State(redis_client): State<Option<redis::Client>>,
+) -> Result<Json<SatoriData>, (StatusCode, Json<ErrorResponse>)> {
+    let satori_data = SatoriData::get(redis_client)
+        .await
+        .map_err(internal_error)?;
 
     Ok(Json(satori_data))
+}
+
+#[async_trait]
+impl Cacheable for SatoriData {
+    fn cache_key() -> String {
+        "satori_data".into()
+    }
+
+    fn ttl() -> usize {
+        3600
+    }
+
+    async fn api_fetch() -> anyhow::Result<Self> {
+        let (current_cards, new_cards) = try_join!(get_current_cards(), get_new_cards())?;
+
+        Ok(Self::new(current_cards, new_cards))
+    }
 }
 
 async fn get_current_cards() -> anyhow::Result<SatoriCurrentCardsResponse> {
