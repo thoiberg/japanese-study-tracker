@@ -1,20 +1,35 @@
 use std::env;
 
-use axum::Json;
+use async_trait::async_trait;
+use axum::{extract::State, Json};
 use reqwest::{Client, StatusCode};
 use scraper::{Html, Selector};
 
-use crate::api::{internal_error, ErrorResponse};
+use crate::api::{cacheable::Cacheable, internal_error, ErrorResponse};
 
 use super::data::AnkiData;
 
-pub async fn anki_handler() -> Result<Json<AnkiData>, (StatusCode, Json<ErrorResponse>)> {
-    let anki_data = get_html_data()
-        .await
-        .and_then(AnkiData::new)
-        .map_err(internal_error)?;
+pub async fn anki_handler(
+    State(redis_client): State<Option<redis::Client>>,
+) -> Result<Json<AnkiData>, (StatusCode, Json<ErrorResponse>)> {
+    let anki_data = AnkiData::get(redis_client).await.map_err(internal_error)?;
 
     Ok(Json(anki_data))
+}
+
+#[async_trait]
+impl Cacheable for AnkiData {
+    fn cache_key() -> String {
+        "anki_data".into()
+    }
+
+    fn ttl() -> usize {
+        3600
+    }
+
+    async fn api_fetch() -> anyhow::Result<Self> {
+        Self::new(get_html_data().await?)
+    }
 }
 
 async fn get_html_data() -> anyhow::Result<Vec<String>> {

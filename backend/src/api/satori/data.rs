@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct SatoriData {
     data_updated_at: DateTime<Utc>,
     active_review_count: u32,
