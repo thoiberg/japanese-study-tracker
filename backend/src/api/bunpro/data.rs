@@ -10,7 +10,7 @@ pub struct StudyQueue {
     requested_information: StudyQueueData,
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct BunproData {
     data_updated_at: DateTime<Utc>,
     active_review_count: u32,
