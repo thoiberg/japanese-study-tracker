@@ -4,7 +4,7 @@ use redis::{AsyncCommands, RedisError};
 use serde::de::DeserializeOwned;
 
 #[async_trait]
-pub trait Cacheable: DeserializeOwned + serde::Serialize {
+pub trait Cacheable: DeserializeOwned + serde::Serialize + Clone {
     fn cache_key() -> String;
     fn ttl() -> usize;
     async fn get(redis_client: Option<redis::Client>) -> anyhow::Result<Box<Self>>;
