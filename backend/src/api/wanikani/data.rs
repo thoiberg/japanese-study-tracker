@@ -52,7 +52,7 @@ impl Lesson {
 
 type Review = Lesson;
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct WanikaniData {
     data_updated_at: DateTime<Utc>,
     active_lesson_count: u32,
