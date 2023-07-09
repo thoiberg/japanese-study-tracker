@@ -7,9 +7,29 @@ use serde::de::DeserializeOwned;
 pub trait Cacheable: DeserializeOwned + serde::Serialize + Clone {
     fn cache_key() -> String;
     fn ttl() -> usize;
-    async fn get(redis_client: Option<redis::Client>) -> anyhow::Result<Box<Self>>;
+    async fn api_fetch() -> anyhow::Result<Self>;
 
-    async fn cache_read(redis_client: &Option<redis::Client>) -> Option<Box<Self>> {
+    async fn get(redis_client: Option<redis::Client>) -> anyhow::Result<Self> {
+        let cache_data = Self::cache_read(&redis_client).await;
+
+        if let Some(cache_data) = cache_data {
+            return Ok(cache_data);
+        }
+
+        let api_data = Self::api_fetch().await?;
+
+        // TODO: Figure out how to do this without cloning. Currently it returns with:
+        //  future cannot be sent between threads safely
+        {
+            let cloned_data = api_data.clone();
+            let write_result = Self::cache_write(&redis_client, cloned_data).await;
+            let _ = write_result.map_err(Self::cache_log);
+        }
+
+        Ok(api_data)
+    }
+
+    async fn cache_read(redis_client: &Option<redis::Client>) -> Option<Self> {
         let client = redis_client.as_ref()?;
         let mut conn = client
             .get_async_connection()
@@ -26,7 +46,7 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize + Clone {
             .map_err(Self::cache_log)
             .ok()?;
 
-        Some(Box::new(wanikani_data))
+        Some(wanikani_data)
     }
 
     async fn cache_write(

@@ -11,7 +11,7 @@ use super::data::{WanikaniData, WanikaniSummaryResponse};
 pub async fn wanikani_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<Json<WanikaniData>, (StatusCode, Json<ErrorResponse>)> {
-    let wanikani_data = *WanikaniData::get(redis_client)
+    let wanikani_data = WanikaniData::get(redis_client)
         .await
         .map_err(internal_error)?;
     // TODO: have I studied today (possibly last study time?)
@@ -29,25 +29,7 @@ impl Cacheable for WanikaniData {
         3600
     }
 
-    async fn get(redis_client: Option<redis::Client>) -> anyhow::Result<Box<Self>> {
-        let cache_data = Self::cache_read(&redis_client).await;
-
-        if let Some(cache_data) = cache_data {
-            return Ok(cache_data);
-        }
-
-        let api_data = Self::get_summary_data().await?;
-
-        let write_result = Self::cache_write(&redis_client, api_data.clone()).await;
-
-        let _ = write_result.map_err(Self::cache_log);
-
-        Ok(Box::new(api_data))
-    }
-}
-
-impl WanikaniData {
-    async fn get_summary_data() -> anyhow::Result<Self> {
+    async fn api_fetch() -> anyhow::Result<Self> {
         let api_token = env::var("WANIKANI_API_TOKEN")?;
         let client = Client::new()
             .get("https://api.wanikani.com/v2/summary")
@@ -63,7 +45,9 @@ impl WanikaniData {
 
         Ok(api_response?.into())
     }
+}
 
+impl WanikaniData {
     fn deserialize_response(response_body: &str) -> anyhow::Result<WanikaniSummaryResponse> {
         let json_data = serde_json::from_str(response_body)?;
 
