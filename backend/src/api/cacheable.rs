@@ -1,11 +1,47 @@
 use anyhow::anyhow;
 use async_trait::async_trait;
-use redis::{AsyncCommands, RedisError};
+use redis::{AsyncCommands, RedisError, ToRedisArgs};
 use serde::de::DeserializeOwned;
+
+pub enum CacheKey {
+    Wanikani,
+    Bunpro,
+    Satori,
+    Anki,
+}
+
+impl ToRedisArgs for CacheKey {
+    fn write_redis_args<W>(&self, out: &mut W)
+    where
+        W: ?Sized + redis::RedisWrite,
+    {
+        let cache_key = match self {
+            CacheKey::Wanikani => "wanikani_data",
+            CacheKey::Bunpro => "bunpro_data",
+            CacheKey::Satori => "satori_data",
+            CacheKey::Anki => "anki_data",
+        }
+        .as_bytes();
+
+        out.write_arg(cache_key);
+    }
+}
+
+impl From<CacheKey> for String {
+    fn from(value: CacheKey) -> Self {
+        match value {
+            CacheKey::Wanikani => "wanikani_data",
+            CacheKey::Bunpro => "bunpro_data",
+            CacheKey::Satori => "satori_data",
+            CacheKey::Anki => "anki_data",
+        }
+        .to_owned()
+    }
+}
 
 #[async_trait]
 pub trait Cacheable: DeserializeOwned + serde::Serialize + Clone {
-    fn cache_key() -> String;
+    fn cache_key() -> CacheKey;
     fn ttl() -> usize;
     async fn api_fetch() -> anyhow::Result<Self>;
 

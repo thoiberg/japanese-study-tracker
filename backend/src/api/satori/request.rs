@@ -5,7 +5,10 @@ use axum::{extract::State, Json};
 use reqwest::{Client, StatusCode};
 use tokio::try_join;
 
-use crate::api::{cacheable::Cacheable, internal_error, ErrorResponse};
+use crate::api::{
+    cacheable::{CacheKey, Cacheable},
+    internal_error, ErrorResponse,
+};
 
 use super::data::{SatoriCurrentCardsResponse, SatoriData, SatoriNewCardsResponse};
 
@@ -21,8 +24,8 @@ pub async fn satori_handler(
 
 #[async_trait]
 impl Cacheable for SatoriData {
-    fn cache_key() -> String {
-        "satori_data".into()
+    fn cache_key() -> CacheKey {
+        CacheKey::Satori
     }
 
     fn ttl() -> usize {

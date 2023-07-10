@@ -5,7 +5,10 @@ use axum::{extract::State, Json};
 use reqwest::{Client, StatusCode};
 use scraper::{Html, Selector};
 
-use crate::api::{cacheable::Cacheable, internal_error, ErrorResponse};
+use crate::api::{
+    cacheable::{CacheKey, Cacheable},
+    internal_error, ErrorResponse,
+};
 
 use super::data::AnkiData;
 
@@ -19,8 +22,8 @@ pub async fn anki_handler(
 
 #[async_trait]
 impl Cacheable for AnkiData {
-    fn cache_key() -> String {
-        "anki_data".into()
+    fn cache_key() -> CacheKey {
+        CacheKey::Anki
     }
 
     fn ttl() -> usize {
