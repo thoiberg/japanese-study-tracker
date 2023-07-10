@@ -4,7 +4,10 @@ use async_trait::async_trait;
 use axum::{extract::State, Json};
 use reqwest::{Client, StatusCode};
 
-use crate::api::{cacheable::Cacheable, internal_error, ErrorResponse};
+use crate::api::{
+    cacheable::{CacheKey, Cacheable},
+    internal_error, ErrorResponse,
+};
 
 use super::data::{BunproData, StudyQueue};
 
@@ -20,8 +23,8 @@ pub async fn bunpro_handler(
 
 #[async_trait]
 impl Cacheable for BunproData {
-    fn cache_key() -> String {
-        "bunpro_data".into()
+    fn cache_key() -> CacheKey {
+        CacheKey::Bunpro
     }
 
     fn ttl() -> usize {

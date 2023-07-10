@@ -4,7 +4,10 @@ use async_trait::async_trait;
 use axum::{extract::State, http::StatusCode, Json};
 use reqwest::Client;
 
-use crate::api::{cacheable::Cacheable, internal_error, ErrorResponse};
+use crate::api::{
+    cacheable::{CacheKey, Cacheable},
+    internal_error, ErrorResponse,
+};
 
 use super::data::{WanikaniData, WanikaniSummaryResponse};
 
@@ -21,8 +24,8 @@ pub async fn wanikani_handler(
 
 #[async_trait]
 impl Cacheable for WanikaniData {
-    fn cache_key() -> String {
-        "wanikani_data".into()
+    fn cache_key() -> CacheKey {
+        CacheKey::Wanikani
     }
 
     fn ttl() -> usize {
