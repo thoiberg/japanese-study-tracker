@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use anyhow::anyhow;
 use async_trait::async_trait;
 use redis::{AsyncCommands, RedisError, ToRedisArgs};
@@ -10,32 +12,25 @@ pub enum CacheKey {
     Anki,
 }
 
-impl ToRedisArgs for CacheKey {
-    fn write_redis_args<W>(&self, out: &mut W)
-    where
-        W: ?Sized + redis::RedisWrite,
-    {
+impl Display for CacheKey {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let cache_key = match self {
             CacheKey::Wanikani => "wanikani_data",
             CacheKey::Bunpro => "bunpro_data",
             CacheKey::Satori => "satori_data",
             CacheKey::Anki => "anki_data",
-        }
-        .as_bytes();
+        };
 
-        out.write_arg(cache_key);
+        f.write_str(cache_key)
     }
 }
 
-impl From<CacheKey> for String {
-    fn from(value: CacheKey) -> Self {
-        match value {
-            CacheKey::Wanikani => "wanikani_data",
-            CacheKey::Bunpro => "bunpro_data",
-            CacheKey::Satori => "satori_data",
-            CacheKey::Anki => "anki_data",
-        }
-        .to_owned()
+impl ToRedisArgs for CacheKey {
+    fn write_redis_args<W>(&self, out: &mut W)
+    where
+        W: ?Sized + redis::RedisWrite,
+    {
+        out.write_arg_fmt(self);
     }
 }
 
