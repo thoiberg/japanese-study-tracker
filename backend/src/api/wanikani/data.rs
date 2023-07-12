@@ -16,12 +16,6 @@ pub struct SummaryDataStructure {
 }
 
 impl SummaryDataStructure {
-    fn total_reviews(&self) -> u32 {
-        self.reviews
-            .iter()
-            .fold(0, |acc, review| acc + review.total_count())
-    }
-
     fn total_lessons(&self) -> u32 {
         self.lessons
             .iter()
