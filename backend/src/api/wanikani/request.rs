@@ -39,14 +39,14 @@ impl Cacheable for WanikaniData {
             .header("Wanikani-Revision", "20170710")
             .bearer_auth(api_token);
 
-        let api_response = client
+        let summary_response = client
             .send()
             .await?
             .text()
             .await
-            .map(|body| Self::deserialize_response(&body))?;
+            .map(|body| Self::deserialize_response(&body))??;
 
-        Ok(api_response?.into())
+        Ok(Self::new(summary_response))
     }
 }
 

@@ -53,12 +53,12 @@ pub struct WanikaniData {
     active_review_count: u32,
 }
 
-impl From<WanikaniSummaryResponse> for WanikaniData {
-    fn from(value: WanikaniSummaryResponse) -> Self {
+impl WanikaniData {
+    pub fn new(summary: WanikaniSummaryResponse) -> Self {
         WanikaniData {
-            data_updated_at: value.data_updated_at,
-            active_lesson_count: value.data.total_lessons(),
-            active_review_count: value.data.current_reviews(),
+            data_updated_at: summary.data_updated_at,
+            active_lesson_count: summary.data.total_lessons(),
+            active_review_count: summary.data.current_reviews(),
         }
     }
 }
