@@ -2,8 +2,6 @@ use chrono::{DateTime, Utc};
 
 #[derive(serde::Deserialize)]
 pub struct WanikaniSummaryResponse {
-    object: String,
-    url: String,
     data_updated_at: DateTime<Utc>,
     data: SummaryDataStructure,
 }
@@ -11,7 +9,6 @@ pub struct WanikaniSummaryResponse {
 #[derive(serde::Deserialize)]
 pub struct SummaryDataStructure {
     lessons: Vec<Lesson>,
-    next_reviews_at: DateTime<Utc>,
     reviews: Vec<Review>,
 }
 
@@ -34,7 +31,6 @@ impl SummaryDataStructure {
 
 #[derive(serde::Deserialize)]
 struct Lesson {
-    available_at: DateTime<Utc>,
     subject_ids: Vec<u32>,
 }
 
