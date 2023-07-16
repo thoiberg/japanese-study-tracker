@@ -98,7 +98,7 @@ fn wanikani_client() -> anyhow::Result<reqwest::Client> {
     headers.insert("Wanikani-Revision", "20170710".parse().unwrap());
 
     headers.insert(
-        "Authorization",
+        reqwest::header::AUTHORIZATION,
         format!("Bearer {}", api_token).parse().unwrap(),
     );
 
