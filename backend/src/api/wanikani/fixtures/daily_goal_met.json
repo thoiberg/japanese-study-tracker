@@ -1,0 +1,118 @@
+{
+    "object": "collection",
+    "url": "https://api.wanikani.com/v2/review_statistics?updated_after=2023-07-12T15%3A00%3A00.000Z",
+    "pages": {
+        "per_page": 500,
+        "next_url": null,
+        "previous_url": null
+    },
+    "total_count": 5,
+    "data_updated_at": "2023-07-12T15:04:40.986584Z",
+    "data": [
+        {
+            "id": 265842220,
+            "object": "review_statistic",
+            "url": "https://api.wanikani.com/v2/review_statistics/265842220",
+            "data_updated_at": "2023-07-12T15:04:26.273436Z",
+            "data": {
+                "created_at": "2022-04-02T01:09:04.576693Z",
+                "subject_id": 6563,
+                "subject_type": "vocabulary",
+                "meaning_correct": 20,
+                "meaning_incorrect": 2,
+                "meaning_max_streak": 17,
+                "meaning_current_streak": 2,
+                "reading_correct": 20,
+                "reading_incorrect": 4,
+                "reading_max_streak": 9,
+                "reading_current_streak": 7,
+                "percentage_correct": 87,
+                "hidden": false
+            }
+        },
+        {
+            "id": 277444520,
+            "object": "review_statistic",
+            "url": "https://api.wanikani.com/v2/review_statistics/277444520",
+            "data_updated_at": "2023-07-12T15:04:18.993127Z",
+            "data": {
+                "created_at": "2022-07-14T12:22:57.639714Z",
+                "subject_id": 1911,
+                "subject_type": "kanji",
+                "meaning_correct": 25,
+                "meaning_incorrect": 6,
+                "meaning_max_streak": 8,
+                "meaning_current_streak": 6,
+                "reading_correct": 25,
+                "reading_incorrect": 4,
+                "reading_max_streak": 21,
+                "reading_current_streak": 3,
+                "percentage_correct": 83,
+                "hidden": false
+            }
+        },
+        {
+            "id": 318708889,
+            "object": "review_statistic",
+            "url": "https://api.wanikani.com/v2/review_statistics/318708889",
+            "data_updated_at": "2023-07-12T15:04:30.148505Z",
+            "data": {
+                "created_at": "2023-06-28T11:23:57.937459Z",
+                "subject_id": 9229,
+                "subject_type": "kana_vocabulary",
+                "meaning_correct": 5,
+                "meaning_incorrect": 0,
+                "meaning_max_streak": 5,
+                "meaning_current_streak": 5,
+                "reading_correct": 5,
+                "reading_incorrect": 0,
+                "reading_max_streak": 5,
+                "reading_current_streak": 5,
+                "percentage_correct": 100,
+                "hidden": false
+            }
+        },
+        {
+            "id": 318708951,
+            "object": "review_statistic",
+            "url": "https://api.wanikani.com/v2/review_statistics/318708951",
+            "data_updated_at": "2023-07-12T15:04:40.986584Z",
+            "data": {
+                "created_at": "2023-06-28T11:24:49.981872Z",
+                "subject_id": 9233,
+                "subject_type": "kana_vocabulary",
+                "meaning_correct": 5,
+                "meaning_incorrect": 0,
+                "meaning_max_streak": 5,
+                "meaning_current_streak": 5,
+                "reading_correct": 5,
+                "reading_incorrect": 0,
+                "reading_max_streak": 5,
+                "reading_current_streak": 5,
+                "percentage_correct": 100,
+                "hidden": false
+            }
+        },
+        {
+            "id": 319533161,
+            "object": "review_statistic",
+            "url": "https://api.wanikani.com/v2/review_statistics/319533161",
+            "data_updated_at": "2023-07-12T15:04:22.236204Z",
+            "data": {
+                "created_at": "2023-07-04T14:17:28.008919Z",
+                "subject_id": 7832,
+                "subject_type": "vocabulary",
+                "meaning_correct": 9,
+                "meaning_incorrect": 4,
+                "meaning_max_streak": 3,
+                "meaning_current_streak": 3,
+                "reading_correct": 9,
+                "reading_incorrect": 1,
+                "reading_max_streak": 6,
+                "reading_current_streak": 6,
+                "percentage_correct": 78,
+                "hidden": false
+            }
+        }
+    ]
+}
