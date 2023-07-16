@@ -2,7 +2,7 @@ use std::env;
 
 use async_trait::async_trait;
 use axum::{extract::State, http::StatusCode, Json};
-use chrono::{DateTime, FixedOffset, Timelike, Utc};
+use chrono::{DateTime, FixedOffset, SecondsFormat, Timelike, Utc};
 use reqwest::Client;
 use tokio::try_join;
 
@@ -87,7 +87,7 @@ fn stats_api_url(from_date: Option<DateTime<Utc>>) -> String {
 
     format!(
         "https://api.wanikani.com/v2/review_statistics?updated_after={}",
-        cutoff_date.format("%Y-%m-%dT%H:%M:%S%.3fZ")
+        cutoff_date.to_rfc3339_opts(SecondsFormat::Millis, true)
     )
 }
 
