@@ -6,7 +6,8 @@ use redis::{AsyncCommands, RedisError, ToRedisArgs};
 use serde::de::DeserializeOwned;
 
 pub enum CacheKey {
-    Wanikani,
+    WanikaniSummary,
+    WanikaniStats,
     Bunpro,
     Satori,
     Anki,
@@ -15,7 +16,8 @@ pub enum CacheKey {
 impl Display for CacheKey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let cache_key = match self {
-            CacheKey::Wanikani => "wanikani_data",
+            CacheKey::WanikaniSummary => "wanikani_summary_data",
+            CacheKey::WanikaniStats => "wanikani_stats_data",
             CacheKey::Bunpro => "bunpro_data",
             CacheKey::Satori => "satori_data",
             CacheKey::Anki => "anki_data",

@@ -16,17 +16,21 @@ use super::data::{WanikaniData, WanikaniReviewStats, WanikaniSummaryResponse};
 pub async fn wanikani_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<Json<WanikaniData>, (StatusCode, Json<ErrorResponse>)> {
-    let wanikani_data = WanikaniData::get(redis_client)
-        .await
-        .map_err(internal_error)?;
+    let (summary_response, stats_response) = try_join!(
+        WanikaniSummaryResponse::get(redis_client.clone()),
+        WanikaniReviewStats::get(redis_client.clone())
+    )
+    .map_err(internal_error)?;
+
+    let wanikani_data = WanikaniData::new(summary_response, stats_response);
 
     Ok(Json(wanikani_data))
 }
 
 #[async_trait]
-impl Cacheable for WanikaniData {
+impl Cacheable for WanikaniSummaryResponse {
     fn cache_key() -> CacheKey {
-        CacheKey::Wanikani
+        CacheKey::WanikaniSummary
     }
 
     fn ttl() -> usize {
@@ -34,15 +38,6 @@ impl Cacheable for WanikaniData {
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {
-        let (summary_response, stats_response) =
-            try_join!(Self::fetch_summary_data(), Self::fetch_stats_data())?;
-
-        Ok(Self::new(summary_response, stats_response))
-    }
-}
-
-impl WanikaniData {
-    async fn fetch_summary_data() -> anyhow::Result<WanikaniSummaryResponse> {
         let client = wanikani_client()?;
 
         client
@@ -51,10 +46,21 @@ impl WanikaniData {
             .await?
             .text()
             .await
-            .map(|body| WanikaniSummaryResponse::try_from_response_body(&body))?
+            .map(|body| Self::try_from_response_body(&body))?
+    }
+}
+
+#[async_trait]
+impl Cacheable for WanikaniReviewStats {
+    fn cache_key() -> CacheKey {
+        CacheKey::WanikaniStats
     }
 
-    async fn fetch_stats_data() -> anyhow::Result<WanikaniReviewStats> {
+    fn ttl() -> usize {
+        3600
+    }
+
+    async fn api_fetch() -> anyhow::Result<Self> {
         let url = stats_api_url(None);
         let client = wanikani_client()?;
 
@@ -64,7 +70,7 @@ impl WanikaniData {
             .await?
             .text()
             .await
-            .map(|body| WanikaniReviewStats::try_from_response_body(&body))?
+            .map(|body| Self::try_from_response_body(&body))?
     }
 }
 
