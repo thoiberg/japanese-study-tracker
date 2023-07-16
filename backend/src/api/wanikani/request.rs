@@ -51,13 +51,10 @@ impl WanikaniData {
     }
 
     async fn fetch_summary_data() -> anyhow::Result<WanikaniSummaryResponse> {
-        let api_token = env::var("WANIKANI_API_TOKEN")?;
-        let client = Client::new()
-            .get("https://api.wanikani.com/v2/summary")
-            .header("Wanikani-Revision", "20170710")
-            .bearer_auth(api_token);
+        let client = wanikani_client()?;
 
         client
+            .get("https://api.wanikani.com/v2/summary")
             .send()
             .await?
             .text()
@@ -67,13 +64,10 @@ impl WanikaniData {
 
     async fn fetch_stats_data() -> anyhow::Result<WanikaniReviewStats> {
         let url = stats_api_url(None);
-        let api_token = env::var("WANIKANI_API_TOKEN")?;
-        let client = Client::new()
-            .get(url)
-            .header("Wanikani-Revision", "20170710")
-            .bearer_auth(api_token);
+        let client = wanikani_client()?;
 
         client
+            .get(url)
             .send()
             .await?
             .text()
@@ -95,6 +89,20 @@ fn stats_api_url(from_date: Option<DateTime<Utc>>) -> String {
         "https://api.wanikani.com/v2/review_statistics?updated_after={}",
         cutoff_date.format("%Y-%m-%dT%H:%M:%S%.3fZ")
     )
+}
+
+fn wanikani_client() -> anyhow::Result<reqwest::Client> {
+    let api_token = env::var("WANIKANI_API_TOKEN")?;
+
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert("Wanikani-Revision", "20170710".parse().unwrap());
+
+    headers.insert(
+        "Authorization",
+        format!("Bearer {}", api_token).parse().unwrap(),
+    );
+
+    Ok(Client::builder().default_headers(headers).build()?)
 }
 
 // TODO: Find a cleaner way to express this
