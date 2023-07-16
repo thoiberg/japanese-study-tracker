@@ -42,14 +42,6 @@ impl Cacheable for WanikaniData {
 }
 
 impl WanikaniData {
-    fn deserialize_summary_response(
-        response_body: &str,
-    ) -> anyhow::Result<WanikaniSummaryResponse> {
-        let json_data = serde_json::from_str(response_body)?;
-
-        Ok(json_data)
-    }
-
     async fn fetch_summary_data() -> anyhow::Result<WanikaniSummaryResponse> {
         let client = wanikani_client()?;
 
@@ -59,7 +51,7 @@ impl WanikaniData {
             .await?
             .text()
             .await
-            .map(|body| Self::deserialize_summary_response(&body))?
+            .map(|body| WanikaniSummaryResponse::try_from_response_body(&body))?
     }
 
     async fn fetch_stats_data() -> anyhow::Result<WanikaniReviewStats> {
@@ -72,13 +64,7 @@ impl WanikaniData {
             .await?
             .text()
             .await
-            .map(|body| Self::deserialize_stats_response(&body))?
-    }
-
-    fn deserialize_stats_response(response_body: &str) -> anyhow::Result<WanikaniReviewStats> {
-        let json_data = serde_json::from_str(response_body)?;
-
-        Ok(json_data)
+            .map(|body| WanikaniReviewStats::try_from_response_body(&body))?
     }
 }
 
@@ -127,24 +113,6 @@ mod test_super {
     use super::*;
 
     #[test]
-    fn test_can_deserialize_empty_reviews() {
-        let response_data = include_str!("./fixtures/wanikani_with_no_reviews.json");
-
-        let response = WanikaniData::deserialize_summary_response(response_data);
-
-        assert!(response.is_ok());
-    }
-
-    #[test]
-    fn test_can_deserialize_with_reviews() {
-        let response_data = include_str!("./fixtures/wanikani_with_reviews.json");
-
-        let response = WanikaniData::deserialize_summary_response(response_data);
-
-        assert!(response.is_ok());
-    }
-
-    #[test]
     fn test_returns_todays_jst_date_in_utc() {
         let from_date = Utc.with_ymd_and_hms(2023, 7, 15, 15, 2, 15).unwrap();
         let url = stats_api_url(Some(from_date));
@@ -161,18 +129,5 @@ mod test_super {
             url,
             "https://api.wanikani.com/v2/review_statistics?updated_after=2023-07-14T15:00:00.000Z"
         );
-    }
-
-    #[test]
-    fn test_can_deserialize_stats() {
-        let goal_met_response_data = include_str!("./fixtures/daily_goal_met.json");
-        let stats = WanikaniData::deserialize_stats_response(goal_met_response_data);
-
-        assert!(stats.is_ok());
-
-        let goal_not_met_response_data = include_str!("./fixtures/daily_goal_not_met.json");
-        let stats = WanikaniData::deserialize_stats_response(goal_not_met_response_data);
-
-        assert!(stats.is_ok());
     }
 }
