@@ -17,8 +17,8 @@ pub async fn wanikani_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<Json<WanikaniData>, (StatusCode, Json<ErrorResponse>)> {
     let (summary_response, stats_response) = try_join!(
-        WanikaniSummaryResponse::get(redis_client.clone()),
-        WanikaniReviewStats::get(redis_client.clone())
+        WanikaniSummaryResponse::get(&redis_client),
+        WanikaniReviewStats::get(&redis_client)
     )
     .map_err(internal_error)?;
 

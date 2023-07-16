@@ -42,8 +42,8 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize + Clone {
     fn ttl() -> usize;
     async fn api_fetch() -> anyhow::Result<Self>;
 
-    async fn get(redis_client: Option<redis::Client>) -> anyhow::Result<Self> {
-        let cache_data = Self::cache_read(&redis_client).await;
+    async fn get(redis_client: &Option<redis::Client>) -> anyhow::Result<Self> {
+        let cache_data = Self::cache_read(redis_client).await;
 
         if let Some(cache_data) = cache_data {
             return Ok(cache_data);
@@ -55,7 +55,7 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize + Clone {
         //  future cannot be sent between threads safely
         {
             let cloned_data = api_data.clone();
-            let write_result = Self::cache_write(&redis_client, cloned_data).await;
+            let write_result = Self::cache_write(redis_client, cloned_data).await;
             let _ = write_result.map_err(Self::cache_log);
         }
 

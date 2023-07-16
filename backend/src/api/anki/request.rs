@@ -15,7 +15,7 @@ use super::data::AnkiData;
 pub async fn anki_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<Json<AnkiData>, (StatusCode, Json<ErrorResponse>)> {
-    let anki_data = AnkiData::get(redis_client).await.map_err(internal_error)?;
+    let anki_data = AnkiData::get(&redis_client).await.map_err(internal_error)?;
 
     Ok(Json(anki_data))
 }
