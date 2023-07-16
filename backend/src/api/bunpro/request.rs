@@ -14,7 +14,7 @@ use super::data::{BunproData, StudyQueue};
 pub async fn bunpro_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<Json<BunproData>, (StatusCode, Json<ErrorResponse>)> {
-    let bunpro_data = BunproData::get(redis_client)
+    let bunpro_data = BunproData::get(&redis_client)
         .await
         .map_err(internal_error)?;
 

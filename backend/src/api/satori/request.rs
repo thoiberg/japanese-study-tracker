@@ -15,7 +15,7 @@ use super::data::{SatoriCurrentCardsResponse, SatoriData, SatoriNewCardsResponse
 pub async fn satori_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<Json<SatoriData>, (StatusCode, Json<ErrorResponse>)> {
-    let satori_data = SatoriData::get(redis_client)
+    let satori_data = SatoriData::get(&redis_client)
         .await
         .map_err(internal_error)?;
 

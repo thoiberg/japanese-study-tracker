@@ -6,7 +6,8 @@ use redis::{AsyncCommands, RedisError, ToRedisArgs};
 use serde::de::DeserializeOwned;
 
 pub enum CacheKey {
-    Wanikani,
+    WanikaniSummary,
+    WanikaniStats,
     Bunpro,
     Satori,
     Anki,
@@ -15,7 +16,8 @@ pub enum CacheKey {
 impl Display for CacheKey {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let cache_key = match self {
-            CacheKey::Wanikani => "wanikani_data",
+            CacheKey::WanikaniSummary => "wanikani_summary_data",
+            CacheKey::WanikaniStats => "wanikani_stats_data",
             CacheKey::Bunpro => "bunpro_data",
             CacheKey::Satori => "satori_data",
             CacheKey::Anki => "anki_data",
@@ -40,8 +42,8 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize + Clone {
     fn ttl() -> usize;
     async fn api_fetch() -> anyhow::Result<Self>;
 
-    async fn get(redis_client: Option<redis::Client>) -> anyhow::Result<Self> {
-        let cache_data = Self::cache_read(&redis_client).await;
+    async fn get(redis_client: &Option<redis::Client>) -> anyhow::Result<Self> {
+        let cache_data = Self::cache_read(redis_client).await;
 
         if let Some(cache_data) = cache_data {
             return Ok(cache_data);
@@ -53,7 +55,7 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize + Clone {
         //  future cannot be sent between threads safely
         {
             let cloned_data = api_data.clone();
-            let write_result = Self::cache_write(&redis_client, cloned_data).await;
+            let write_result = Self::cache_write(redis_client, cloned_data).await;
             let _ = write_result.map_err(Self::cache_log);
         }
 
