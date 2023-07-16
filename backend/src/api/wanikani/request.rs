@@ -139,12 +139,20 @@ mod test_super {
 
     #[test]
     fn test_returns_todays_jst_date_in_utc() {
-        let from_date = Utc.with_ymd_and_hms(2023, 7, 15, 15, 48, 15).unwrap();
+        let from_date = Utc.with_ymd_and_hms(2023, 7, 15, 15, 2, 15).unwrap();
         let url = stats_api_url(Some(from_date));
 
         assert_eq!(
             url,
             "https://api.wanikani.com/v2/review_statistics?updated_after=2023-07-15T15:00:00.000Z"
+        );
+
+        let from_date = Utc.with_ymd_and_hms(2023, 7, 15, 14, 58, 15).unwrap();
+        let url = stats_api_url(Some(from_date));
+
+        assert_eq!(
+            url,
+            "https://api.wanikani.com/v2/review_statistics?updated_after=2023-07-14T15:00:00.000Z"
         );
     }
 
