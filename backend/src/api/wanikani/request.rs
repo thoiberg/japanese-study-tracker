@@ -19,7 +19,6 @@ pub async fn wanikani_handler(
     let wanikani_data = WanikaniData::get(redis_client)
         .await
         .map_err(internal_error)?;
-    // TODO: have I studied today (possibly last study time?)
 
     Ok(Json(wanikani_data))
 }
