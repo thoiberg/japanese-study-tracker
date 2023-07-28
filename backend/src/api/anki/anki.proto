@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package anki.items;
+
+message DeckListInfo {
+    AllDecksInfo allDecksInfo = 1;
+    int32 someDateProbably = 2;
+    int32 userIdMaybe = 3;
+}
+
+message AllDecksInfo {
+    repeated DeckInfo decks = 3;
+    optional int32 allDecksReviewCardCount = 6;
+    optional int32 allDecksNewCardCount = 8;
+}
+
+message DeckInfo {
+  int32 someDate = 1;
+  string deckName = 2;
+  int32 deckIdProbably = 4;
+  optional int32 reviewCardCount = 6;
+  optional int32 newCardCount = 8;
+  optional int32 alsoNewCardCount = 11;
+  optional int32 alsoReviewCardCount = 12;
+  int32 totalCardCount = 13;
+}
