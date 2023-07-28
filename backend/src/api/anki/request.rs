@@ -81,19 +81,53 @@ fn get_japanese_deck(deck_list_info: &DeckListInfo) -> Option<DeckInfo> {
 mod test_super {
     use super::*;
 
-    #[test]
-    fn test_with_no_pending_or_new_cards() {
-        let html = include_str!("./fixtures/no_pending_reviews_or_cards.html");
-        let count_values = parse_html(html);
+    use base64::{engine::general_purpose, Engine as _};
 
-        assert_eq!(count_values, vec!["0", "0"]);
+    #[test]
+    fn test_can_decode_protobuf_message_with_data() {
+        let encoded_message = include_str!("./fixtures/protobuf_with_reviews_and_new_cards");
+        let decoded_message = general_purpose::STANDARD
+            .decode(encoded_message)
+            .expect("base64 decode failed");
+
+        let deck_list_response = decode_protobuf_response(Bytes::from(decoded_message));
+
+        assert!(deck_list_response.is_ok());
+
+        let decks = deck_list_response
+            .unwrap()
+            .all_decks_info
+            .expect("deck lists was empty")
+            .decks;
+        assert_eq!(decks.len(), 1);
+
+        let japanese_deck = decks.first().unwrap();
+
+        assert_eq!(japanese_deck.review_card_count(), 72);
+        assert_eq!(japanese_deck.new_card_count(), 2);
     }
 
     #[test]
-    fn test_with_pending_and_new_cards() {
-        let html = include_str!("./fixtures/pending_reviews_and_cards.html");
-        let count_values = parse_html(html);
+    fn test_can_decode_protobuf_message_with_no_data() {
+        let encoded_message = include_str!("./fixtures/protobuf_with_no_reviews_or_new_cards");
+        let decoded_message = general_purpose::STANDARD
+            .decode(encoded_message)
+            .expect("base64 decode failed");
 
-        assert_eq!(count_values, vec!["79", "1"]);
+        let deck_list_response = decode_protobuf_response(Bytes::from(decoded_message));
+
+        assert!(deck_list_response.is_ok());
+
+        let decks = deck_list_response
+            .unwrap()
+            .all_decks_info
+            .expect("deck lists was empty")
+            .decks;
+        assert_eq!(decks.len(), 1);
+
+        let japanese_deck = decks.first().unwrap();
+
+        assert_eq!(japanese_deck.review_card_count(), 0);
+        assert_eq!(japanese_deck.new_card_count(), 0);
     }
 }
