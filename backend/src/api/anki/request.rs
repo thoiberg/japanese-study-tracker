@@ -1,16 +1,22 @@
-use std::env;
+use std::{env, io::Cursor};
 
+use anyhow::anyhow;
 use async_trait::async_trait;
 use axum::{extract::State, Json};
+use bytes::Bytes;
+use prost::Message;
 use reqwest::{Client, StatusCode};
-use scraper::{Html, Selector};
 
 use crate::api::{
+    anki::proto_definitions,
     cacheable::{CacheKey, Cacheable},
     internal_error, ErrorResponse,
 };
 
-use super::data::AnkiData;
+use super::{
+    data::AnkiData,
+    proto_definitions::{DeckInfo, DeckListInfo},
+};
 
 pub async fn anki_handler(
     State(redis_client): State<Option<redis::Client>>,
@@ -31,36 +37,44 @@ impl Cacheable for AnkiData {
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {
-        Self::new(get_html_data().await?)
+        Ok(Self::from(get_html_data().await?))
     }
 }
 
-async fn get_html_data() -> anyhow::Result<Vec<String>> {
+async fn get_html_data() -> anyhow::Result<DeckInfo> {
     let cookie = env::var("ANKIWEB_COOKIE")?;
 
-    let html = Client::new()
-        .get("https://ankiweb.net/decks/")
-        .header("Accept", "text/html")
+    let encoded_message = Client::new()
+        .post("https://ankiweb.net/svc/decks/deck-list-info")
         .header("Cookie", format!("ankiweb={}", cookie))
+        .header("Content-Type", "application/octet-stream")
         .send()
         .await?
-        .text()
+        .bytes()
         .await?;
 
-    Ok(parse_html(&html))
+    let deck_list_info = decode_protobuf_response(encoded_message)?;
+
+    let japanese_deck =
+        get_japanese_deck(&deck_list_info).ok_or(anyhow!("Could not find Japanese deck"))?;
+
+    Ok(japanese_deck)
 }
 
-fn parse_html(html: &str) -> Vec<String> {
-    let document = Html::parse_document(html);
+fn decode_protobuf_response(encoded_message: Bytes) -> anyhow::Result<DeckListInfo> {
+    Ok(proto_definitions::DeckListInfo::decode(&mut Cursor::new(
+        encoded_message,
+    ))?)
+}
 
-    let card_numbers_selector = Selector::parse(".deckDueNumber > font").unwrap();
-
-    let elements = document.select(&card_numbers_selector);
-
-    elements
+fn get_japanese_deck(deck_list_info: &DeckListInfo) -> Option<DeckInfo> {
+    // TODO: refactor to remove clone
+    deck_list_info
+        .all_decks_info
+        .clone()?
+        .decks
         .into_iter()
-        .map(|element| element.inner_html())
-        .collect()
+        .find(|deck| deck.deck_name == "Japanese")
 }
 
 #[cfg(test)]
