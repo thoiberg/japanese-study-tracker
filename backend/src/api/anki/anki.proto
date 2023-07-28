@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package anki.items;
+
+message DeckListInfo {
+    AllDecksInfo allDecksInfo = 1;
+    int32 someDateProbably = 2;
+    int32 userIdMaybe = 3;
+}
+
+message AllDecksInfo {
+    repeated DeckInfo decks = 3;
+    optional uint32 allDecksReviewCardCount = 6;
+    optional uint32 allDecksNewCardCount = 8;
+}
+
+// I think it corresponds to this??? https://github.com/ankitects/anki/blob/1d7559819ca3520898247585bfcac96904737bec/proto/anki/decks.proto#L147
+message DeckInfo {
+  int64 deckId = 1;
+  string deckName = 2;
+  uint32 level = 4;
+  optional uint32 reviewCardCount = 6;
+  optional uint32 learnCount = 7;
+  optional uint32 newCardCount = 8;
+  optional uint32 uncappedNewCardCount = 11;
+  optional uint32 uncappedReviewCardCount = 12;
+  uint32 totalCardCount = 13;
+}
