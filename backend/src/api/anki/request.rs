@@ -37,11 +37,11 @@ impl Cacheable for AnkiData {
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {
-        Ok(Self::from(get_html_data().await?))
+        Ok(Self::from(get_decks_data().await?))
     }
 }
 
-async fn get_html_data() -> anyhow::Result<DeckInfo> {
+async fn get_decks_data() -> anyhow::Result<DeckInfo> {
     let cookie = env::var("ANKIWEB_COOKIE")?;
 
     let encoded_message = Client::new()
