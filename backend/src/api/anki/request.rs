@@ -130,4 +130,28 @@ mod test_super {
         assert_eq!(japanese_deck.review_card_count(), 0);
         assert_eq!(japanese_deck.new_card_count(), 0);
     }
+
+    #[test]
+    fn test_can_decode_protobuf_message_with_learning_count() {
+        let encoded_message = include_str!("./fixtures/protobuf_with_review_and_learning_cards");
+        let decoded_message = general_purpose::STANDARD
+            .decode(encoded_message)
+            .expect("base64 decode failed");
+
+        let deck_list_response = decode_protobuf_response(Bytes::from(decoded_message));
+
+        assert!(deck_list_response.is_ok());
+
+        let decks = deck_list_response
+            .unwrap()
+            .all_decks_info
+            .expect("deck lists was empty")
+            .decks;
+        assert_eq!(decks.len(), 1);
+
+        let japanese_deck = decks.first().unwrap();
+
+        assert_eq!(japanese_deck.review_card_count(), 6);
+        assert_eq!(japanese_deck.learn_count(), 8);
+    }
 }
