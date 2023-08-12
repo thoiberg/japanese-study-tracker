@@ -1,7 +1,7 @@
 ############################
 # Backend build
 ############################
-FROM rust:1.70-alpine3.18 AS backend-build
+FROM rust:1.71-alpine3.18 AS backend-build
 
 RUN apk add pkgconfig openssl openssl-dev musl musl-dev
 
