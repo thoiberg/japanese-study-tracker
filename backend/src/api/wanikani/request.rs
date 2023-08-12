@@ -44,6 +44,7 @@ impl Cacheable for WanikaniSummaryResponse {
             .get("https://api.wanikani.com/v2/summary")
             .send()
             .await?
+            .error_for_status()?
             .text()
             .await
             .map(|body| Self::try_from_response_body(&body))?
@@ -68,6 +69,7 @@ impl Cacheable for WanikaniReviewStats {
             .get(url)
             .send()
             .await?
+            .error_for_status()?
             .text()
             .await
             .map(|body| Self::try_from_response_body(&body))?

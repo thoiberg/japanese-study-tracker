@@ -50,6 +50,7 @@ async fn get_decks_data() -> anyhow::Result<DeckInfo> {
         .header("Content-Type", "application/octet-stream")
         .send()
         .await?
+        .error_for_status()?
         .bytes()
         .await?;
 

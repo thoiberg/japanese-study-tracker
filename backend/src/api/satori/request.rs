@@ -46,6 +46,7 @@ async fn get_current_cards() -> anyhow::Result<SatoriCurrentCardsResponse> {
         .get("https://www.satorireader.com/api/studylist/due/count")
         .send()
         .await?
+        .error_for_status()?
         .text()
         .await
         .map(|body| serialize_current_cards_response(&body))?
