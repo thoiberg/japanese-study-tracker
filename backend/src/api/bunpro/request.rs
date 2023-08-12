@@ -42,6 +42,7 @@ impl Cacheable for BunproData {
             .get(url)
             .send()
             .await?
+            .error_for_status()?
             .text()
             .await
             .map(|body| Self::serialize_response(&body))??;
