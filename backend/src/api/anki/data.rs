@@ -12,8 +12,6 @@ pub struct AnkiData {
 
 impl From<DeckInfo> for AnkiData {
     fn from(deck: DeckInfo) -> Self {
-        deck.review_card_count();
-
         Self {
             active_review_count: deck.review_card_count() + deck.learn_count(),
             new_card_count: deck.new_card_count(),
