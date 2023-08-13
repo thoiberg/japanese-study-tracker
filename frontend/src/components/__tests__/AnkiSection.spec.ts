@@ -4,6 +4,8 @@ import LoadingIndicatorVue from '../LoadingIndicator.vue'
 import AnkiSectionVue, { type AnkiResponse } from '../AnkiSection.vue'
 import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
 
+interface MockAnkiResponse extends Partial<AnkiResponse> {}
+
 describe('AnkiSection', () => {
   const fetchMock = vi.fn()
   global.fetch = fetchMock
@@ -24,13 +26,12 @@ describe('AnkiSection', () => {
   })
 
   describe('when the request succeeds', () => {
-    // TODO: pull out the type and see if I can automatically convert all properties to optional
-    function mockResponse(newCardCount?: number, totalNewCardCount?: number) {
+    function mockResponse(mockData: MockAnkiResponse) {
       const data = {
-        data_updated_at: '2023-06-24T06:00:00Z',
-        active_review_count: 8,
-        new_card_count: newCardCount || 14,
-        total_new_card_count: totalNewCardCount || 14
+        data_updated_at: mockData.data_updated_at || '2023-06-24T06:00:00Z',
+        active_review_count: mockData.active_review_count || 8,
+        new_card_count: mockData.new_card_count || 14,
+        total_new_card_count: mockData.total_new_card_count || 14
       }
       const mockResponse = {
         status: 200,
@@ -41,7 +42,7 @@ describe('AnkiSection', () => {
     }
 
     it('displays the information', async () => {
-      mockResponse()
+      mockResponse({})
 
       const wrapper = mount(AnkiSectionVue)
       await flushPromises()
@@ -55,7 +56,7 @@ describe('AnkiSection', () => {
 
     describe('when the total new card count is below the daily limit', () => {
       it('does not show additional new cards', async () => {
-        mockResponse(14, 14)
+        mockResponse({ new_card_count: 14, total_new_card_count: 14 })
 
         const wrapper = mount(AnkiSectionVue)
         await flushPromises()
@@ -66,7 +67,7 @@ describe('AnkiSection', () => {
 
     describe('when the total new card count is above the daily limit', () => {
       it('shows the extra cards', async () => {
-        mockResponse(14, 114)
+        mockResponse({ new_card_count: 14, total_new_card_count: 114 })
 
         const wrapper = mount(AnkiSectionVue)
         await flushPromises()
