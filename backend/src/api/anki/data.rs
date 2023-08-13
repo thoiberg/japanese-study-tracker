@@ -6,6 +6,7 @@ use super::proto_definitions::DeckInfo;
 pub struct AnkiData {
     active_review_count: u32,
     new_card_count: u32,
+    total_new_card_count: u32,
     data_updated_at: DateTime<Utc>,
 }
 
@@ -16,6 +17,7 @@ impl From<DeckInfo> for AnkiData {
         Self {
             active_review_count: deck.review_card_count() + deck.learn_count(),
             new_card_count: deck.new_card_count(),
+            total_new_card_count: deck.uncapped_new_card_count(),
             data_updated_at: Utc::now(),
         }
     }
