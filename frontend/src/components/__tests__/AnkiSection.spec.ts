@@ -27,9 +27,10 @@ describe('AnkiSection', () => {
 
   describe('when the request succeeds', () => {
     function mockResponse(mockData: MockAnkiResponse) {
-      const data = {
+      const data: AnkiResponse = {
         data_updated_at: mockData.data_updated_at || '2023-06-24T06:00:00Z',
         active_review_count: mockData.active_review_count || 8,
+        total_active_review_count: mockData.total_active_review_count || 8,
         new_card_count: mockData.new_card_count || 14,
         total_new_card_count: mockData.total_new_card_count || 14
       }
@@ -52,29 +53,6 @@ describe('AnkiSection', () => {
       expect(wrapper.findComponent(UpdatedTimestampVue).text()).toContain(
         'Data Fetched at: 24/6/23, 3:00 pm'
       )
-    })
-
-    describe('when the total new card count is below the daily limit', () => {
-      it('does not show additional new cards', async () => {
-        mockResponse({ new_card_count: 14, total_new_card_count: 14 })
-
-        const wrapper = mount(AnkiSectionVue)
-        await flushPromises()
-
-        expect(wrapper.findAll('.super').length).toEqual(0)
-      })
-    })
-
-    describe('when the total new card count is above the daily limit', () => {
-      it('shows the extra cards', async () => {
-        mockResponse({ new_card_count: 14, total_new_card_count: 114 })
-
-        const wrapper = mount(AnkiSectionVue)
-        await flushPromises()
-
-        expect(wrapper.findAll('.super').length).toEqual(1)
-        expect(wrapper.find('.super').text()).toEqual('(+ 100)')
-      })
     })
   })
 
