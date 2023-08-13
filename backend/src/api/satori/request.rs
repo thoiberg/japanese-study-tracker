@@ -15,17 +15,21 @@ use super::data::{SatoriCurrentCardsResponse, SatoriData, SatoriNewCardsResponse
 pub async fn satori_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<Json<SatoriData>, (StatusCode, Json<ErrorResponse>)> {
-    let satori_data = SatoriData::get(&redis_client)
-        .await
-        .map_err(internal_error)?;
+    let (current_cards, new_cards) = try_join!(
+        SatoriCurrentCardsResponse::get(&redis_client),
+        SatoriNewCardsResponse::get(&redis_client)
+    )
+    .map_err(internal_error)?;
+
+    let satori_data = SatoriData::new(current_cards, new_cards);
 
     Ok(Json(satori_data))
 }
 
 #[async_trait]
-impl Cacheable for SatoriData {
+impl Cacheable for SatoriCurrentCardsResponse {
     fn cache_key() -> CacheKey {
-        CacheKey::Satori
+        CacheKey::SatoriReviewCards
     }
 
     fn ttl() -> usize {
@@ -33,9 +37,22 @@ impl Cacheable for SatoriData {
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {
-        let (current_cards, new_cards) = try_join!(get_current_cards(), get_new_cards())?;
+        get_current_cards().await
+    }
+}
 
-        Ok(Self::new(current_cards, new_cards))
+#[async_trait]
+impl Cacheable for SatoriNewCardsResponse {
+    fn cache_key() -> CacheKey {
+        CacheKey::SatoriNewCards
+    }
+
+    fn ttl() -> usize {
+        3600
+    }
+
+    async fn api_fetch() -> anyhow::Result<Self> {
+        get_new_cards().await
     }
 }
 

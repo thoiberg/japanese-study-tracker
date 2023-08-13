@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[derive(serde::Serialize)]
 pub struct SatoriData {
     data_updated_at: DateTime<Utc>,
     active_review_count: u32,
@@ -20,7 +20,7 @@ impl SatoriData {
     }
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 pub struct SatoriCurrentCardsResponse {
     result: u32,
     success: bool,
@@ -28,7 +28,7 @@ pub struct SatoriCurrentCardsResponse {
     exception: Option<String>,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, serde::Serialize, Clone)]
 pub struct SatoriNewCardsResponse {
     result: u32,
     success: bool,
