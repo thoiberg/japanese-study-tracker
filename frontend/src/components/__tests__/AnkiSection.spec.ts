@@ -1,10 +1,12 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, vi, it, expect } from 'vitest'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
-import AnkiSectionVue from '../AnkiSection.vue'
+import AnkiSectionVue, { type AnkiResponse } from '../AnkiSection.vue'
 import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
 
-describe('AnkiData', () => {
+interface MockAnkiResponse extends Partial<AnkiResponse> {}
+
+describe('AnkiSection', () => {
   const fetchMock = vi.fn()
   global.fetch = fetchMock
 
@@ -24,11 +26,13 @@ describe('AnkiData', () => {
   })
 
   describe('when the request succeeds', () => {
-    it('displays the information', async () => {
-      const data = {
-        data_updated_at: '2023-06-24T06:00:00Z',
-        active_review_count: 8,
-        new_card_count: 14
+    function mockResponse(mockData: MockAnkiResponse) {
+      const data: AnkiResponse = {
+        data_updated_at: mockData.data_updated_at || '2023-06-24T06:00:00Z',
+        active_review_count: mockData.active_review_count || 8,
+        total_active_review_count: mockData.total_active_review_count || 8,
+        new_card_count: mockData.new_card_count || 14,
+        total_new_card_count: mockData.total_new_card_count || 14
       }
       const mockResponse = {
         status: 200,
@@ -36,6 +40,10 @@ describe('AnkiData', () => {
         json: () => new Promise((resolve) => resolve(data))
       }
       fetchMock.mockResolvedValue(mockResponse)
+    }
+
+    it('displays the information', async () => {
+      mockResponse({})
 
       const wrapper = mount(AnkiSectionVue)
       await flushPromises()

@@ -104,8 +104,9 @@ mod test_super {
 
         let japanese_deck = decks.first().unwrap();
 
-        assert_eq!(japanese_deck.review_card_count(), 72);
-        assert_eq!(japanese_deck.new_card_count(), 2);
+        assert_eq!(japanese_deck.review_card_count(), 59);
+        assert_eq!(japanese_deck.new_card_count(), 40);
+        assert_eq!(japanese_deck.uncapped_new_card_count(), 159);
     }
 
     #[test]
