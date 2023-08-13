@@ -4,7 +4,7 @@ import LoadingIndicatorVue from '../LoadingIndicator.vue'
 import AnkiSectionVue from '../AnkiSection.vue'
 import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
 
-describe('AnkiData', () => {
+describe('AnkiSection', () => {
   const fetchMock = vi.fn()
   global.fetch = fetchMock
 
