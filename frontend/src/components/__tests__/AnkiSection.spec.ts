@@ -1,7 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, vi, it, expect } from 'vitest'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
-import AnkiSectionVue from '../AnkiSection.vue'
+import AnkiSectionVue, { type AnkiResponse } from '../AnkiSection.vue'
 import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
 
 describe('AnkiSection', () => {
@@ -24,11 +24,13 @@ describe('AnkiSection', () => {
   })
 
   describe('when the request succeeds', () => {
-    it('displays the information', async () => {
+    // TODO: pull out the type and see if I can automatically convert all properties to optional
+    function mockResponse(newCardCount?: number, totalNewCardCount?: number) {
       const data = {
         data_updated_at: '2023-06-24T06:00:00Z',
         active_review_count: 8,
-        new_card_count: 14
+        new_card_count: newCardCount || 14,
+        total_new_card_count: totalNewCardCount || 14
       }
       const mockResponse = {
         status: 200,
@@ -36,6 +38,10 @@ describe('AnkiSection', () => {
         json: () => new Promise((resolve) => resolve(data))
       }
       fetchMock.mockResolvedValue(mockResponse)
+    }
+
+    it('displays the information', async () => {
+      mockResponse()
 
       const wrapper = mount(AnkiSectionVue)
       await flushPromises()
@@ -45,6 +51,29 @@ describe('AnkiSection', () => {
       expect(wrapper.findComponent(UpdatedTimestampVue).text()).toContain(
         'Data Fetched at: 24/6/23, 3:00 pm'
       )
+    })
+
+    describe('when the total new card count is below the daily limit', () => {
+      it('does not show additional new cards', async () => {
+        mockResponse(14, 14)
+
+        const wrapper = mount(AnkiSectionVue)
+        await flushPromises()
+
+        expect(wrapper.findAll('.super').length).toEqual(0)
+      })
+    })
+
+    describe('when the total new card count is above the daily limit', () => {
+      it('shows the extra cards', async () => {
+        mockResponse(14, 114)
+
+        const wrapper = mount(AnkiSectionVue)
+        await flushPromises()
+
+        expect(wrapper.findAll('.super').length).toEqual(1)
+        expect(wrapper.find('.super').text()).toEqual('(+ 100)')
+      })
     })
   })
 
