@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<script type="text/javascript">
+
+    var heatmap = null;
+    var categoryRadioButtonSet = null;
+    var articleRadioButtonSet = null;
+
+    $(function () {
+
+        var activityScores = [{"userID":"[REDACTED]","date":"2023-04-18","score":9.39999999999999}];
+
+        heatmap = new Heatmap(activityScores, 180, document.getElementById("heatmap"));
+        heatmap.init();
+        heatmap.render();
+
+        categoryRadioButtonSet = new RadioButtonSet(
+            [
+                new RadioButton("dashboard-category-view-control-articles"),
+                new RadioButton("dashboard-category-view-control-stats")
+            ]
+        );
+
+        articleRadioButtonSet = new RadioButtonSet(
+            [
+                new RadioButton("dashboard-articles-view-control-recent"),
+                new RadioButton("dashboard-articles-view-control-bookmarked"),
+                new RadioButton("dashboard-articles-view-control-favorited"),
+                new RadioButton("dashboard-articles-view-control-new")
+            ]
+        );
+    });
+
+    function showTopLevelCategory(id) {
+
+        var controls = ['#dashboard-articles-view-controls', '#dashboard-stats-view-controls'];
+        var containers = ['#dashboard-category-articles', '#dashboard-category-stats'];
+
+        for (var i = 0; i < controls.length; i++) {
+            var show = controls[i] == id;
+            configureShowAndHideCss(controls[i], show);
+            configureShowAndHideCss(containers[i], show);
+        }
+    }
+
+    function showArticleCategory(id) {
+        var categories = ["#dashboard-recent-articles", "#dashboard-bookmarked-articles", "#dashboard-favorited-series", "#dashboard-new"];
+
+        for (var j = 0; j < categories.length; j++) {
+            if (categories[j] == id) {
+                $(categories[j]).show();
+            }
+            else {
+                $(categories[j]).hide();
+            }
+        }
+    }
+
+    function configureShowAndHideCss(idIncludingPoundSign, show) {
+        if (show) {
+            $(idIncludingPoundSign).addClass("show");
+            $(idIncludingPoundSign).removeClass("hide");
+        }
+        else {
+            $(idIncludingPoundSign).addClass("hide");
+            $(idIncludingPoundSign).removeClass("show");
+        }
+    }
+
+</script>
+</html>

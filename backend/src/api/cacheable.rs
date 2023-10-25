@@ -11,6 +11,7 @@ pub enum CacheKey {
     Bunpro,
     SatoriReviewCards,
     SatoriNewCards,
+    SatoriStats,
     Anki,
 }
 
@@ -22,6 +23,7 @@ impl Display for CacheKey {
             CacheKey::Bunpro => "bunpro_data",
             CacheKey::SatoriReviewCards => "satori_review_cards",
             CacheKey::SatoriNewCards => "satori_new_cards",
+            CacheKey::SatoriStats => "satori_stats",
             CacheKey::Anki => "anki_data",
         };
 
