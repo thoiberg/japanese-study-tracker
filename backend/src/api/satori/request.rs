@@ -1,5 +1,6 @@
 use std::env;
 
+use anyhow::anyhow;
 use async_trait::async_trait;
 use axum::{extract::State, Json};
 use chrono::{DateTime, FixedOffset, Utc};
@@ -98,18 +99,9 @@ impl Cacheable for SatoriStats {
             ))
         }
 
-        let heat_data_json = extract_heat_data_from_js(elements.first().unwrap());
+        let heat_data_json = extract_heat_data_from_js(elements.first().unwrap())?;
 
-        let heat_data = deserialize_heat_data(&heat_data_json)?;
-
-        let todays_date = date_for_heatmap(None);
-
-        let todays_heat_data = heat_data.iter().find(|hd| hd.date == todays_date);
-
-        let todays_heat_level = match todays_heat_data {
-            Some(hd) => hd.heat_level(),
-            None => SatoriHeatLevel::Zero,
-        };
+        let todays_heat_level = todays_heat_level(heat_data_json, None);
 
         Ok(Self {
             heat_level: todays_heat_level,
@@ -124,23 +116,32 @@ fn date_for_heatmap(date: Option<DateTime<Utc>>) -> String {
     date.format("%Y-%m-%d").to_string()
 }
 
-fn extract_heat_data_from_js(element: &ElementRef) -> String {
-    // look for var activityScores = $();
-    let re = Regex::new("var activityScores = (.+);").unwrap();
+fn extract_heat_data_from_js(element: &ElementRef) -> anyhow::Result<String> {
+    let re = Regex::new("var activityScores = (.+);")?;
 
-    let beep = element.inner_html();
-    let heat_data = re.captures(beep.as_str());
+    let javascript = element.inner_html();
+    let heat_data = re
+        .captures(javascript.as_str())
+        .and_then(|captures| captures.get(1))
+        .ok_or(anyhow!("Unable to find heat data json"))?;
 
-    // TODO: bail if heat_data amount is not 2 (0 is the regex, 1 is the capture group I think???)
-    let boop = heat_data.unwrap().get(1).unwrap();
-
-    boop.as_str().to_string()
+    Ok(heat_data.as_str().to_string())
 }
 
 fn deserialize_heat_data(json_data: &str) -> anyhow::Result<Vec<SatoriHeatData>> {
     let heat_data: Vec<SatoriHeatData> = serde_json::from_str(json_data)?;
 
     Ok(heat_data)
+}
+
+fn todays_heat_level(heat_data_json: String, date: Option<DateTime<Utc>>) -> SatoriHeatLevel {
+    let todays_date = date_for_heatmap(date);
+
+    deserialize_heat_data(&heat_data_json)
+        .ok()
+        .and_then(|heat_data| heat_data.into_iter().find(|hd| hd.date == todays_date))
+        .map(|today| today.heat_level())
+        .unwrap_or(SatoriHeatLevel::Zero)
 }
 
 async fn get_current_cards() -> anyhow::Result<SatoriCurrentCardsResponse> {
@@ -194,6 +195,8 @@ fn satori_client() -> anyhow::Result<Client> {
 
 #[cfg(test)]
 mod test_super {
+    use std::str::FromStr;
+
     use chrono::TimeZone;
 
     use super::*;
@@ -241,7 +244,32 @@ mod test_super {
         let expected_data =
             r#"[{"userID":"[REDACTED]","date":"2023-04-18","score":9.39999999999999}]"#;
 
-        assert_eq!(heatmap_data, expected_data);
+        assert!(heatmap_data.is_ok());
+        assert_eq!(heatmap_data.unwrap(), expected_data);
+    }
+
+    #[test]
+    fn test_todays_heat_level_with_day_defined() {
+        let heat_data_json = String::from(
+            r#"[{"userID":"[REDACTED]","date":"2023-04-18","score":9.39999999999999}]"#,
+        );
+
+        let date = Some(DateTime::<Utc>::from_str("2023-04-18 00:00:00+00:00").unwrap());
+        let heat_level = todays_heat_level(heat_data_json, date);
+
+        assert_eq!(heat_level, SatoriHeatLevel::Four);
+    }
+
+    #[test]
+    fn test_todays_heat_level_with_day_missing() {
+        let heat_data_json = String::from(
+            r#"[{"userID":"[REDACTED]","date":"2023-04-18","score":9.39999999999999}]"#,
+        );
+
+        let date = Some(DateTime::<Utc>::from_str("2023-04-19 00:00:00+00:00").unwrap());
+        let heat_level = todays_heat_level(heat_data_json, date);
+
+        assert_eq!(heat_level, SatoriHeatLevel::Zero);
     }
 
     #[test]
@@ -253,7 +281,7 @@ mod test_super {
 
         let heatmap_data = extract_heat_data_from_js(elements.first().unwrap());
 
-        let satori_heat_data = deserialize_heat_data(&heatmap_data);
+        let satori_heat_data = deserialize_heat_data(&heatmap_data.unwrap());
 
         assert!(satori_heat_data.is_ok());
 

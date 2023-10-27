@@ -67,7 +67,7 @@ impl SatoriHeatData {
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq)]
+#[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
 pub enum SatoriHeatLevel {
     Zero,
     One,
