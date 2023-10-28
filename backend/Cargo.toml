@@ -14,6 +14,7 @@ chrono = { version = "0.4.26", features = ["serde"] }
 indexmap = "2.0.0"
 prost = "0.11.9"
 redis = { version = "0.23.0", features = ["serde_json", "tls-rustls", "tokio-comp", "tokio-rustls-comp"] }
+regex = "1.10.2"
 reqwest = { version = "0.11.18", default-features = false, features = ["serde_json", "json", "rustls-tls"] }
 scraper = { version = "0.17.1", features = ["indexmap"] }
 serde = { version = "1.0.164", features = ["derive"] }
