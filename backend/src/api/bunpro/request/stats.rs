@@ -49,6 +49,8 @@ fn serialize_stats_response(body: String) -> anyhow::Result<BunproReviewStats> {
 
 #[cfg(test)]
 mod test_super {
+    use chrono::NaiveDate;
+
     use super::*;
 
     #[test]
@@ -58,7 +60,20 @@ mod test_super {
 
         assert!(stats.is_ok());
 
-        let count_for = stats.unwrap().count_for("2023-09-30").unwrap();
+        let date = NaiveDate::parse_from_str("2023-09-30", "%Y-%m-%d").unwrap();
+        let count_for = stats.unwrap().count_for(date);
         assert_eq!(count_for, 21);
+    }
+
+    #[test]
+    fn test_serialize_stats_response_for_missing_day() {
+        let json_response = include_str!("../fixtures/bunpro_review_history.json");
+        let stats = serialize_stats_response(json_response.to_string());
+
+        assert!(stats.is_ok());
+
+        let date = NaiveDate::parse_from_str("2023-01-01", "%Y-%m-%d").unwrap();
+        let count_for = stats.unwrap().count_for(date);
+        assert_eq!(count_for, 0);
     }
 }

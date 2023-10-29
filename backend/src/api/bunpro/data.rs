@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use chrono::{DateTime, FixedOffset, Utc};
+use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 
 // TODO: Add custom deserialization for Epoch timestamp in seconds
@@ -22,14 +22,12 @@ pub struct BunproData {
 impl BunproData {
     pub fn new(study_queue: StudyQueue, stats: BunproReviewStats) -> Self {
         let today = Utc::now().with_timezone(&FixedOffset::east_opt(9 * 3600).unwrap());
-        let today_string = today.format("%Y-%m-%d").to_string();
-        let todays_stats = stats.count_for(&today_string);
-        let daily_study_goal_met = todays_stats.unwrap_or(0) > 0;
+        let todays_stats = stats.count_for(today.naive_local().date());
 
         Self {
             data_updated_at: Utc::now(),
             active_review_count: study_queue.requested_information.reviews_available,
-            daily_study_goal_met,
+            daily_study_goal_met: todays_stats > 0,
         }
     }
 }
@@ -57,9 +55,12 @@ pub struct BunproReviewStats {
 }
 
 impl BunproReviewStats {
-    pub fn count_for(self, date: &str) -> Option<u32> {
+    pub fn count_for(self, date: NaiveDate) -> u32 {
+        let date_string = date.format("%Y-%m-%d").to_string();
+
         self.grammar
             .iter()
-            .find_map(|(k, v)| if k == date { Some(*v) } else { None })
+            .find_map(|(k, v)| if k == &date_string { Some(*v) } else { None })
+            .unwrap_or(0)
     }
 }
