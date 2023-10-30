@@ -3,26 +3,34 @@ use std::env;
 use async_trait::async_trait;
 use axum::{extract::State, Json};
 use reqwest::{Client, StatusCode};
+use tokio::try_join;
 
 use crate::api::{
+    bunpro::data::BunproReviewStats,
     cacheable::{CacheKey, Cacheable},
     internal_error, ErrorResponse,
 };
 
 use super::data::{BunproData, StudyQueue};
 
+mod stats;
+
 pub async fn bunpro_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<Json<BunproData>, (StatusCode, Json<ErrorResponse>)> {
-    let bunpro_data = BunproData::get(&redis_client)
-        .await
-        .map_err(internal_error)?;
+    let (study_queue_data, stats_data) = try_join!(
+        StudyQueue::get(&redis_client),
+        BunproReviewStats::get(&redis_client)
+    )
+    .map_err(internal_error)?;
+
+    let bunpro_data = BunproData::new(study_queue_data, stats_data);
 
     Ok(Json(bunpro_data))
 }
 
 #[async_trait]
-impl Cacheable for BunproData {
+impl Cacheable for StudyQueue {
     fn cache_key() -> CacheKey {
         CacheKey::Bunpro
     }
@@ -45,18 +53,16 @@ impl Cacheable for BunproData {
             .error_for_status()?
             .text()
             .await
-            .map(|body| Self::serialize_response(&body))??;
+            .map(|body| serialize_response(&body))??;
 
-        Ok(study_queue.into())
+        Ok(study_queue)
     }
 }
 
-impl BunproData {
-    fn serialize_response(body: &str) -> anyhow::Result<StudyQueue> {
-        let json = serde_json::from_str(body)?;
+fn serialize_response(body: &str) -> anyhow::Result<StudyQueue> {
+    let json = serde_json::from_str(body)?;
 
-        Ok(json)
-    }
+    Ok(json)
 }
 
 #[cfg(test)]
@@ -66,13 +72,13 @@ mod test_super {
     #[test]
     fn test_bunpro_with_reviews() {
         let with_reviews = include_str!("./fixtures/bunpro_with_reviews.json");
-        let response = BunproData::serialize_response(with_reviews);
+        let response = serialize_response(with_reviews);
         assert!(response.is_ok());
     }
 
     #[test]
     fn test_bunpro_with_no_reviews() {
         let with_no_reviews = include_str!("./fixtures/bunpro_with_no_reviews.json");
-        assert!(BunproData::serialize_response(with_no_reviews).is_ok());
+        assert!(serialize_response(with_no_reviews).is_ok());
     }
 }
