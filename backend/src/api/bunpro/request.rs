@@ -54,7 +54,8 @@ impl Cacheable for StudyQueue {
             .error_for_status()?
             .text()
             .await
-            .map(|body| serialize_response(&body))??;
+            .map_err(|err| err.into())
+            .and_then(|body| serialize_response(&body))?;
 
         Ok(study_queue)
     }
