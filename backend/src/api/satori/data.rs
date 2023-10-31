@@ -15,7 +15,7 @@ impl SatoriData {
         stats: SatoriStats,
     ) -> Self {
         Self {
-            data_updated_at: Utc::now(),
+            data_updated_at: current_cards.fetched_at.unwrap_or(Utc::now()),
             active_review_count: current_cards.result,
             new_card_count: new_cards.result,
             daily_study_goal_met: stats.heat_level == SatoriHeatLevel::Four,
@@ -29,6 +29,7 @@ pub struct SatoriCurrentCardsResponse {
     success: bool,
     message: Option<String>,
     exception: Option<String>,
+    pub fetched_at: Option<DateTime<Utc>>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Clone)]
