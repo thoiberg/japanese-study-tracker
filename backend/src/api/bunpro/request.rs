@@ -2,6 +2,7 @@ use std::env;
 
 use async_trait::async_trait;
 use axum::{extract::State, Json};
+use chrono::Utc;
 use reqwest::{Client, StatusCode};
 use tokio::try_join;
 
@@ -60,7 +61,9 @@ impl Cacheable for StudyQueue {
 }
 
 fn serialize_response(body: &str) -> anyhow::Result<StudyQueue> {
-    let json = serde_json::from_str(body)?;
+    let mut json: StudyQueue = serde_json::from_str(body)?;
+
+    json.fetched_at = Some(Utc::now());
 
     Ok(json)
 }

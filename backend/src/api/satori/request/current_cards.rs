@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::Utc;
 
 use crate::api::{
     cacheable::{CacheKey, Cacheable},
@@ -36,7 +37,9 @@ async fn get_current_cards() -> anyhow::Result<SatoriCurrentCardsResponse> {
 }
 
 fn serialize_current_cards_response(body: &str) -> anyhow::Result<SatoriCurrentCardsResponse> {
-    let json_data: SatoriCurrentCardsResponse = serde_json::from_str(body)?;
+    let mut json_data: SatoriCurrentCardsResponse = serde_json::from_str(body)?;
+
+    json_data.fetched_at = Some(Utc::now());
 
     Ok(json_data)
 }

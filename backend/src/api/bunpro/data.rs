@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub struct StudyQueue {
     user_information: UserInformation,
     requested_information: StudyQueueData,
+    pub fetched_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -25,7 +26,7 @@ impl BunproData {
         let todays_stats = stats.count_for(today.naive_local().date());
 
         Self {
-            data_updated_at: Utc::now(),
+            data_updated_at: study_queue.fetched_at.unwrap_or(Utc::now()),
             active_review_count: study_queue.requested_information.reviews_available,
             daily_study_goal_met: todays_stats > 0,
         }
