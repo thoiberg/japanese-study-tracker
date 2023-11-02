@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 
 use super::proto_definitions::DeckInfo;
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct AnkiData {
     active_review_count: u32,
     total_active_review_count: u32,

@@ -23,7 +23,7 @@ impl SatoriData {
     }
 }
 
-#[derive(serde::Deserialize, serde::Serialize, Clone)]
+#[derive(serde::Deserialize, serde::Serialize)]
 pub struct SatoriCurrentCardsResponse {
     result: u32,
     success: bool,
@@ -32,7 +32,7 @@ pub struct SatoriCurrentCardsResponse {
     pub fetched_at: Option<DateTime<Utc>>,
 }
 
-#[derive(serde::Deserialize, serde::Serialize, Clone)]
+#[derive(serde::Deserialize, serde::Serialize)]
 pub struct SatoriNewCardsResponse {
     result: u32,
     success: bool,
@@ -40,7 +40,7 @@ pub struct SatoriNewCardsResponse {
     exception: Option<String>,
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct SatoriStats {
     pub heat_level: SatoriHeatLevel,
 }
@@ -68,7 +68,7 @@ impl SatoriHeatData {
     }
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Clone, PartialEq, Debug)]
+#[derive(serde::Serialize, serde::Deserialize, PartialEq, Debug)]
 pub enum SatoriHeatLevel {
     Zero,
     One,
