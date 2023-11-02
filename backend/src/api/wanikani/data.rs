@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 
-#[derive(serde::Deserialize, serde::Serialize, Clone)]
+#[derive(serde::Deserialize, serde::Serialize)]
 pub struct WanikaniSummaryResponse {
     data_updated_at: DateTime<Utc>,
     data: SummaryDataStructure,
@@ -14,7 +14,7 @@ impl WanikaniSummaryResponse {
     }
 }
 
-#[derive(serde::Deserialize, serde::Serialize, Clone)]
+#[derive(serde::Deserialize, serde::Serialize)]
 pub struct SummaryDataStructure {
     lessons: Vec<Lesson>,
     reviews: Vec<Review>,
@@ -37,7 +37,7 @@ impl SummaryDataStructure {
     }
 }
 
-#[derive(serde::Deserialize, serde::Serialize, Clone)]
+#[derive(serde::Deserialize, serde::Serialize)]
 struct Lesson {
     subject_ids: Vec<u32>,
 }
@@ -50,7 +50,7 @@ impl Lesson {
 
 type Review = Lesson;
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct WanikaniReviewStats {
     total_count: u32,
 }

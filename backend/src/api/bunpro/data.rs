@@ -6,14 +6,14 @@ use serde::{Deserialize, Serialize};
 // TODO: Add custom deserialization for Epoch timestamp in seconds
 // to DateTime<Utc> type
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct StudyQueue {
     user_information: UserInformation,
     requested_information: StudyQueueData,
     pub fetched_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize)]
 pub struct BunproData {
     data_updated_at: DateTime<Utc>,
     active_review_count: u32,
@@ -33,7 +33,7 @@ impl BunproData {
     }
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct UserInformation {
     username: String,
     grammar_point_count: u32,
@@ -41,7 +41,7 @@ struct UserInformation {
     creation_date: u32,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct StudyQueueData {
     reviews_available: u32,
     next_review_date: u32,
@@ -49,7 +49,7 @@ struct StudyQueueData {
     reviews_available_next_day: u32,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct BunproReviewStats {
     grammar: HashMap<String, u32>,
     vocab: HashMap<String, u32>,
