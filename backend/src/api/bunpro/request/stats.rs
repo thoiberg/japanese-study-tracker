@@ -37,7 +37,9 @@ fn bunpro_stats_client(frontend_session_token: String) -> anyhow::Result<Client>
     let mut headers = reqwest::header::HeaderMap::new();
     headers.insert(
         header::AUTHORIZATION,
-        format!("Token {}", frontend_session_token).parse().unwrap(),
+        format!("Token token={}", frontend_session_token)
+            .parse()
+            .unwrap(),
     );
 
     Ok(Client::builder().default_headers(headers).build()?)
@@ -73,7 +75,7 @@ async fn get_frontend_auth_token() -> anyhow::Result<String> {
         }
     });
 
-    cookie.ok_or(anyhow!("frontend_app_session cookie could not be found"))
+    cookie.ok_or(anyhow!(format!("{} cookie could not be found", TOKEN_NAME)))
 }
 
 fn serialize_stats_response(body: String) -> anyhow::Result<BunproReviewStats> {
