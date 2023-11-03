@@ -11,6 +11,7 @@ async-trait = "0.1.71"
 axum = { version = "0.6.18", features = ["macros", "tracing"] }
 bytes = "1.4.0"
 chrono = { version = "0.4.26", features = ["serde"] }
+chrono-tz = "0.8.4"
 indexmap = "2.0.0"
 prost = "0.11.9"
 redis = { version = "0.23.0", features = ["serde_json", "tls-rustls", "tokio-comp", "tokio-rustls-comp"] }
