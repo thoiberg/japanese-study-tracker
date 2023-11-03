@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use chrono::{DateTime, FixedOffset, NaiveDate, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
+use chrono_tz::Asia::Tokyo;
 use serde::{Deserialize, Serialize};
 
 // TODO: Add custom deserialization for Epoch timestamp in seconds
@@ -22,7 +23,7 @@ pub struct BunproData {
 
 impl BunproData {
     pub fn new(study_queue: StudyQueue, stats: BunproReviewStats) -> Self {
-        let today = Utc::now().with_timezone(&FixedOffset::east_opt(9 * 3600).unwrap());
+        let today = Utc::now().with_timezone(&Tokyo);
         let todays_stats = stats.count_for(today.naive_local().date());
 
         Self {

@@ -57,8 +57,9 @@ impl Cacheable for SatoriStats {
 }
 
 fn date_for_heatmap(date: Option<DateTime<Utc>>) -> String {
-    let jst_offset = FixedOffset::east_opt(9 * 3600).unwrap();
-    let date = date.unwrap_or(Utc::now()).with_timezone(&jst_offset);
+    let date = date
+        .unwrap_or(Utc::now())
+        .with_timezone(&chrono_tz::Asia::Tokyo);
 
     date.format("%Y-%m-%d").to_string()
 }
@@ -160,8 +161,7 @@ mod test_super {
 
     #[test]
     fn test_date_for_heatmap() {
-        let early_date = FixedOffset::east_opt(0)
-            .unwrap()
+        let early_date = chrono_tz::Asia::Tokyo
             .with_ymd_and_hms(2023, 2, 12, 0, 0, 0)
             .unwrap()
             .with_timezone(&Utc);
@@ -169,8 +169,7 @@ mod test_super {
         let early_date_string = date_for_heatmap(Some(early_date));
         assert_eq!(early_date_string, "2023-02-12");
 
-        let late_date = FixedOffset::east_opt(0)
-            .unwrap()
+        let late_date = chrono_tz::Asia::Tokyo
             .with_ymd_and_hms(2023, 10, 1, 0, 0, 0)
             .unwrap()
             .with_timezone(&Utc);

@@ -2,7 +2,8 @@ use std::env;
 
 use async_trait::async_trait;
 use axum::{extract::State, http::StatusCode, Json};
-use chrono::{DateTime, FixedOffset, SecondsFormat, Timelike, Utc};
+use chrono::{DateTime, Datelike, SecondsFormat, TimeZone, Utc};
+use chrono_tz::Asia::Tokyo;
 use reqwest::Client;
 use tokio::try_join;
 
@@ -99,19 +100,12 @@ fn wanikani_client() -> anyhow::Result<reqwest::Client> {
     Ok(Client::builder().default_headers(headers).build()?)
 }
 
-// TODO: Find a cleaner way to express this
 fn today_jst_midnight_in_utc(from_date: Option<DateTime<Utc>>) -> DateTime<Utc> {
-    let dt = from_date
-        .unwrap_or(Utc::now())
-        .with_timezone(&FixedOffset::east_opt(9 * 3600).unwrap());
+    let dt = from_date.unwrap_or(Utc::now()).with_timezone(&Tokyo);
 
-    let midnight = dt
-        .with_hour(0)
-        .and_then(|dt| dt.with_minute(0))
-        .and_then(|dt| dt.with_second(0))
-        .and_then(|dt| dt.with_nanosecond(0));
+    let midnight = Tokyo.with_ymd_and_hms(dt.year(), dt.month(), dt.day(), 0, 0, 0);
 
-    midnight.unwrap().naive_utc().and_utc()
+    midnight.unwrap().with_timezone(&Utc)
 }
 
 #[cfg(test)]
