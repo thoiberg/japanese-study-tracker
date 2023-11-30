@@ -34,7 +34,7 @@ describe('AnkiSection', () => {
         total_active_review_count: mockData?.total_active_review_count || 8,
         new_card_count: mockData?.new_card_count || 14,
         total_new_card_count: mockData?.total_new_card_count || 14,
-        daily_study_goal_meet: mockData?.daily_study_goal_meet || false
+        daily_study_goal_met: mockData?.daily_study_goal_met || false
       }
       const mockResponse = {
         status: 200,
@@ -59,7 +59,7 @@ describe('AnkiSection', () => {
 
     describe('when the study goal has not been met', () => {
       it('does not show the indicator', async () => {
-        mockResponse({ daily_study_goal_meet: false })
+        mockResponse({ daily_study_goal_met: false })
 
         const wrapper = mount(AnkiSectionVue)
         await flushPromises()
@@ -70,7 +70,7 @@ describe('AnkiSection', () => {
 
     describe('when the study goal has been met', () => {
       it('shows the indicator', async () => {
-        mockResponse({ daily_study_goal_meet: true })
+        mockResponse({ daily_study_goal_met: true })
 
         const wrapper = mount(AnkiSectionVue)
         await flushPromises()

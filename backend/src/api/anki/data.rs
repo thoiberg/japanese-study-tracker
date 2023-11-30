@@ -9,7 +9,7 @@ pub struct AnkiData {
     new_card_count: u32,
     total_new_card_count: u32,
     data_updated_at: DateTime<Utc>,
-    daily_study_goal_meet: bool,
+    daily_study_goal_met: bool,
 }
 
 impl From<DeckInfo> for AnkiData {
@@ -20,7 +20,7 @@ impl From<DeckInfo> for AnkiData {
             new_card_count: deck.new_card_count(),
             total_new_card_count: deck.uncapped_new_card_count(),
             data_updated_at: Utc::now(),
-            daily_study_goal_meet: deck.review_card_count() == 0,
+            daily_study_goal_met: deck.review_card_count() == 0,
         }
     }
 }

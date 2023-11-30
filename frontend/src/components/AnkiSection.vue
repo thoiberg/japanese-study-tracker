@@ -1,6 +1,6 @@
 <template>
   <div class="app-stats" v-if="ankiData">
-    <DailyGoalIndicator v-if="ankiData.daily_study_goal_meet" />
+    <DailyGoalIndicator v-if="ankiData.daily_study_goal_met" />
     <CappedCount
       card-type="Current Reviews"
       :capped-count="ankiData.active_review_count"
@@ -51,7 +51,7 @@ const AnkiResponseSchema = z.object({
   new_card_count: z.number(),
   data_updated_at: z.string(),
   total_new_card_count: z.number(),
-  daily_study_goal_meet: z.boolean()
+  daily_study_goal_met: z.boolean()
 })
 
 export type AnkiResponse = z.infer<typeof AnkiResponseSchema>
