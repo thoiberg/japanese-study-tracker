@@ -1,9 +1,10 @@
 import { describe, it, vi, expect, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 
-import WanikaniSectionVue from '../WanikaniSection.vue'
+import WanikaniSectionVue, { type WanikaniResponse } from '../WanikaniSection.vue'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
 import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
+import DailyGoalIndicatorVue from '../DailyGoalIndicator.vue'
 
 describe('WaniKani', () => {
   const fetchMock = vi.fn()
@@ -25,18 +26,26 @@ describe('WaniKani', () => {
   })
 
   describe('when the request succeeds', () => {
-    it('displays the information', async () => {
-      const data = {
-        data_updated_at: '2023-06-24T06:00:00Z',
-        active_lesson_count: 66,
-        active_review_count: 15
+    interface MockWanikaniResponse extends Partial<WanikaniResponse> {}
+
+    function mockResponse(mockData?: MockWanikaniResponse) {
+      const data: WanikaniResponse = {
+        data_updated_at: mockData?.data_updated_at || '2023-06-24T06:00:00Z',
+        active_review_count: mockData?.active_review_count || 15,
+        active_lesson_count: mockData?.active_lesson_count || 66,
+        daily_study_goal_met: mockData?.daily_study_goal_met || false
       }
+
       const mockResponse = {
         status: 200,
         ok: true,
         json: () => new Promise((resolve) => resolve(data))
       }
       fetchMock.mockResolvedValue(mockResponse)
+    }
+
+    it('displays the information', async () => {
+      mockResponse()
 
       const wrapper = mount(WanikaniSectionVue)
       await flushPromises()
@@ -46,6 +55,30 @@ describe('WaniKani', () => {
       expect(wrapper.findComponent(UpdatedTimestampVue).text()).toEqual(
         'Data Fetched at: 24/6/23, 3:00 pm'
       )
+    })
+
+    describe('and the daily goat is not met', () => {
+      it('does not show the indicator', async () => {
+        mockResponse({
+          daily_study_goal_met: false
+        })
+
+        const wrapper = mount(WanikaniSectionVue)
+        await flushPromises()
+
+        expect(wrapper.findComponent(DailyGoalIndicatorVue).exists()).toBe(false)
+      })
+    })
+
+    describe('and the daily goat is met', () => {
+      it('shows the indicator', async () => {
+        mockResponse({ daily_study_goal_met: true })
+
+        const wrapper = mount(WanikaniSectionVue)
+        await flushPromises()
+
+        expect(wrapper.findComponent(DailyGoalIndicatorVue).exists()).toBe(true)
+      })
     })
   })
 

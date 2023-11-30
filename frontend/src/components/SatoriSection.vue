@@ -1,5 +1,6 @@
 <template>
   <div class="app-stats" v-if="satoriData">
+    <DailyGoalIndicator v-if="satoriData.daily_study_goal_met" />
     <p>Current Reviews: {{ satoriData.active_review_count }}</p>
     <p>New Cards: {{ satoriData.new_card_count }}</p>
     <UpdatedTimestamp :time-stamp="satoriData.data_updated_at" />
@@ -16,6 +17,7 @@ import LoadingIndicator from './LoadingIndicator.vue'
 import UpdatedTimestamp from './UpdatedTimestamp.vue'
 import { type BackendError, ApiErrorResponse } from '@/utils/errorParsing'
 import { z } from 'zod'
+import DailyGoalIndicator from './DailyGoalIndicator.vue'
 
 let satoriData: Ref<SatoriResponse | null> = ref(null)
 let error: Ref<BackendError | null> = ref(null)
@@ -37,8 +39,9 @@ onMounted(async () => {
 const SatoriResponseSchema = z.object({
   data_updated_at: z.string(),
   new_card_count: z.number(),
-  active_review_count: z.number()
+  active_review_count: z.number(),
+  daily_study_goal_met: z.boolean()
 })
 
-type SatoriResponse = z.infer<typeof SatoriResponseSchema>
+export type SatoriResponse = z.infer<typeof SatoriResponseSchema>
 </script>
