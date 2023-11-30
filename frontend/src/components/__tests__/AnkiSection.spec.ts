@@ -3,6 +3,7 @@ import { afterEach, describe, vi, it, expect } from 'vitest'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
 import AnkiSectionVue, { type AnkiResponse } from '../AnkiSection.vue'
 import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
+import DailyGoalIndicatorVue from '../DailyGoalIndicator.vue'
 
 interface MockAnkiResponse extends Partial<AnkiResponse> {}
 
@@ -63,7 +64,7 @@ describe('AnkiSection', () => {
         const wrapper = mount(AnkiSectionVue)
         await flushPromises()
 
-        expect(wrapper.text()).not.toContain('🎉')
+        expect(wrapper.findComponent(DailyGoalIndicatorVue).exists()).toBe(false)
       })
     })
 
@@ -74,7 +75,7 @@ describe('AnkiSection', () => {
         const wrapper = mount(AnkiSectionVue)
         await flushPromises()
 
-        expect(wrapper.text()).toContain('🎉')
+        expect(wrapper.findComponent(DailyGoalIndicatorVue).exists()).toBe(true)
       })
     })
   })

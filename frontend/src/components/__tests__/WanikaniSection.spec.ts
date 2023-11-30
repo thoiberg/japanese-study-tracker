@@ -4,6 +4,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import WanikaniSectionVue, { type WanikaniResponse } from '../WanikaniSection.vue'
 import LoadingIndicatorVue from '../LoadingIndicator.vue'
 import UpdatedTimestampVue from '../UpdatedTimestamp.vue'
+import DailyGoalIndicatorVue from '../DailyGoalIndicator.vue'
 
 describe('WaniKani', () => {
   const fetchMock = vi.fn()
@@ -65,7 +66,7 @@ describe('WaniKani', () => {
         const wrapper = mount(WanikaniSectionVue)
         await flushPromises()
 
-        expect(wrapper.text()).not.toContain('🎉')
+        expect(wrapper.findComponent(DailyGoalIndicatorVue).exists()).toBe(false)
       })
     })
 
@@ -76,7 +77,7 @@ describe('WaniKani', () => {
         const wrapper = mount(WanikaniSectionVue)
         await flushPromises()
 
-        expect(wrapper.text()).toContain('🎉')
+        expect(wrapper.findComponent(DailyGoalIndicatorVue).exists()).toBe(true)
       })
     })
   })
