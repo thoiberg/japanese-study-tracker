@@ -26,13 +26,14 @@ describe('AnkiSection', () => {
   })
 
   describe('when the request succeeds', () => {
-    function mockResponse(mockData: MockAnkiResponse) {
+    function mockResponse(mockData?: MockAnkiResponse) {
       const data: AnkiResponse = {
-        data_updated_at: mockData.data_updated_at || '2023-06-24T06:00:00Z',
-        active_review_count: mockData.active_review_count || 8,
-        total_active_review_count: mockData.total_active_review_count || 8,
-        new_card_count: mockData.new_card_count || 14,
-        total_new_card_count: mockData.total_new_card_count || 14
+        data_updated_at: mockData?.data_updated_at || '2023-06-24T06:00:00Z',
+        active_review_count: mockData?.active_review_count || 8,
+        total_active_review_count: mockData?.total_active_review_count || 8,
+        new_card_count: mockData?.new_card_count || 14,
+        total_new_card_count: mockData?.total_new_card_count || 14,
+        daily_study_goal_meet: mockData?.daily_study_goal_meet || false
       }
       const mockResponse = {
         status: 200,
@@ -43,7 +44,7 @@ describe('AnkiSection', () => {
     }
 
     it('displays the information', async () => {
-      mockResponse({})
+      mockResponse()
 
       const wrapper = mount(AnkiSectionVue)
       await flushPromises()
@@ -53,6 +54,28 @@ describe('AnkiSection', () => {
       expect(wrapper.findComponent(UpdatedTimestampVue).text()).toContain(
         'Data Fetched at: 24/6/23, 3:00 pm'
       )
+    })
+
+    describe('when the study goal has not been met', () => {
+      it('does not show the indicator', async () => {
+        mockResponse({ daily_study_goal_meet: false })
+
+        const wrapper = mount(AnkiSectionVue)
+        await flushPromises()
+
+        expect(wrapper.text()).not.toContain('🎉')
+      })
+    })
+
+    describe('when the study goal has been met', () => {
+      it('shows the indicator', async () => {
+        mockResponse({ daily_study_goal_meet: true })
+
+        const wrapper = mount(AnkiSectionVue)
+        await flushPromises()
+
+        expect(wrapper.text()).toContain('🎉')
+      })
     })
   })
 

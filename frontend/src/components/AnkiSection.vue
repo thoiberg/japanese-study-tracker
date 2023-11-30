@@ -1,5 +1,6 @@
 <template>
   <div class="app-stats" v-if="ankiData">
+    <DailyGoalIndicator v-if="ankiData.daily_study_goal_meet" />
     <CappedCount
       card-type="Current Reviews"
       :capped-count="ankiData.active_review_count"
@@ -22,6 +23,7 @@
 import { ApiErrorResponse, type BackendError } from '@/utils/errorParsing'
 import LoadingIndicator from './LoadingIndicator.vue'
 import UpdatedTimestamp from './UpdatedTimestamp.vue'
+import DailyGoalIndicator from './DailyGoalIndicator.vue'
 import { onMounted, ref, type Ref } from 'vue'
 import { z } from 'zod'
 import CappedCount from './CappedCount.vue'
@@ -48,7 +50,8 @@ const AnkiResponseSchema = z.object({
   total_active_review_count: z.number(),
   new_card_count: z.number(),
   data_updated_at: z.string(),
-  total_new_card_count: z.number()
+  total_new_card_count: z.number(),
+  daily_study_goal_meet: z.boolean()
 })
 
 export type AnkiResponse = z.infer<typeof AnkiResponseSchema>
