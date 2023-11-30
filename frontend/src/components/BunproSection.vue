@@ -1,5 +1,6 @@
 <template>
   <div class="app-stats" v-if="bunproData">
+    <DailyGoalIndicator v-if="bunproData.daily_study_goal_met" />
     <p>Current Reviews: {{ bunproData.active_review_count }}</p>
     <UpdatedTimestamp :time-stamp="bunproData.data_updated_at" />
   </div>
@@ -13,6 +14,7 @@
 import { onMounted, ref, type Ref } from 'vue'
 import LoadingIndicator from './LoadingIndicator.vue'
 import UpdatedTimestamp from './UpdatedTimestamp.vue'
+import DailyGoalIndicator from './DailyGoalIndicator.vue'
 import { type BackendError, ApiErrorResponse } from '@/utils/errorParsing'
 import { z } from 'zod'
 
@@ -35,8 +37,9 @@ onMounted(async () => {
 
 const BunproResponseSchema = z.object({
   data_updated_at: z.string(),
-  active_review_count: z.number()
+  active_review_count: z.number(),
+  daily_study_goal_met: z.boolean()
 })
 
-type BunproResponse = z.infer<typeof BunproResponseSchema>
+export type BunproResponse = z.infer<typeof BunproResponseSchema>
 </script>
