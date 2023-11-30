@@ -1,7 +1,7 @@
 ############################
 # Backend build
 ############################
-FROM rust:1.71-alpine3.18 AS backend-build
+FROM rust:1.74-alpine3.18 AS backend-build
 
 RUN apk add pkgconfig openssl openssl-dev musl musl-dev
 
@@ -15,7 +15,7 @@ RUN cargo build --release
 ############################
 # Frontend build
 ############################
-FROM node:20.2.0-bullseye-slim AS frontend-build
+FROM node:20.10.0 AS frontend-build
 
 RUN mkdir /app
 WORKDIR /app

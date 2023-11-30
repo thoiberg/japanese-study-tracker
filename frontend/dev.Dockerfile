@@ -1,6 +1,4 @@
-# Needed to specifically lock to this version due to an ETXTBUSY issue with ESBuild
-# https://stackoverflow.com/questions/76461515/etxtbsy-error-when-installing-esbuild-in-docker-container
-FROM node:20.2.0-bullseye-slim
+FROM node:20.10.0
 
 RUN mkdir /app
 WORKDIR /app
