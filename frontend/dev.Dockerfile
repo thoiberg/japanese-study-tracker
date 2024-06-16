@@ -8,4 +8,4 @@ COPY package-lock.json .
 
 RUN npm install
 
-CMD ["npm", "run", "dev"]
+CMD ["./node_modules/vite/bin/vite.js", "--host", "0.0.0.0"]
