@@ -46,7 +46,7 @@ async fn get_decks_data() -> anyhow::Result<DeckInfo> {
 
     let encoded_message = Client::new()
         .post("https://ankiweb.net/svc/decks/deck-list-info")
-        .header("Cookie", format!("ankiweb={}", cookie))
+        .header("Cookie", format!("ankiweb={cookie}"))
         .header("Content-Type", "application/octet-stream")
         .send()
         .await?

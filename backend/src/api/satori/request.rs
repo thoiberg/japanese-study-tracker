@@ -33,7 +33,7 @@ pub fn satori_client() -> anyhow::Result<Client> {
     let mut headers = reqwest::header::HeaderMap::new();
     headers.insert(
         "Cookie",
-        format!("SessionToken={}", satori_cookie).parse().unwrap(),
+        format!("SessionToken={satori_cookie}").parse().unwrap(),
     );
 
     Ok(Client::builder().default_headers(headers).build()?)

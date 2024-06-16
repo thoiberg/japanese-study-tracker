@@ -41,7 +41,7 @@ async fn main() {
         .serve(app.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await
-        .unwrap()
+        .unwrap();
 }
 
 async fn root_handler() -> Result<Html<String>, (StatusCode, &'static str)> {
@@ -71,8 +71,8 @@ async fn shutdown_signal() {
     };
 
     tokio::select! {
-        _ = ctrl_c => {},
-        _ = terminate => {},
+        () = ctrl_c => {},
+        () = terminate => {},
     }
 
     tracing::info!("signal received, starting graceful shutdown");
@@ -80,7 +80,7 @@ async fn shutdown_signal() {
 
 fn get_redis_connection() -> Option<redis::Client> {
     let redis_client: anyhow::Result<redis::Client> = env::var("REDIS_URL")
-        .map_err(|err| err.into())
+        .map_err(Into::into)
         .and_then(|redis_url| Ok(redis::Client::open(redis_url)?));
 
     redis_client.ok()

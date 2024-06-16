@@ -94,7 +94,7 @@ fn wanikani_client() -> anyhow::Result<reqwest::Client> {
 
     headers.insert(
         reqwest::header::AUTHORIZATION,
-        format!("Bearer {}", api_token).parse().unwrap(),
+        format!("Bearer {api_token}").parse().unwrap(),
     );
 
     Ok(Client::builder().default_headers(headers).build()?)

@@ -28,7 +28,7 @@ jobs:
             name: "Clippy check"
             command: |
               rustup component add clippy
-              cargo clippy
+              cargo clippy -- -Dwarnings
             working_directory: "backend"
   backend test:
     docker:
