@@ -1,6 +1,6 @@
-version: "3.8"
 services:
   backend:
+    init: true
     build:
       context: ./backend
       dockerfile: dev.Dockerfile
