@@ -88,8 +88,7 @@ fn todays_heat_level(heat_data_json: String, date: Option<DateTime<Utc>>) -> Sat
     deserialize_heat_data(&heat_data_json)
         .ok()
         .and_then(|heat_data| heat_data.into_iter().find(|hd| hd.date == todays_date))
-        .map(|today| today.heat_level())
-        .unwrap_or(SatoriHeatLevel::Zero)
+        .map_or(SatoriHeatLevel::Zero, |today| today.heat_level())
 }
 
 #[cfg(test)]

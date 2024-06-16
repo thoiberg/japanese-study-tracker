@@ -42,10 +42,7 @@ impl Cacheable for StudyQueue {
 
     async fn api_fetch() -> anyhow::Result<Self> {
         let bunpro_api_token = env::var("BUNPRO_API_TOKEN")?;
-        let url = format!(
-            "https://bunpro.jp/api/user/{}/study_queue",
-            bunpro_api_token
-        );
+        let url = format!("https://bunpro.jp/api/user/{bunpro_api_token}/study_queue");
 
         let study_queue = Client::new()
             .get(url)
@@ -54,7 +51,7 @@ impl Cacheable for StudyQueue {
             .error_for_status()?
             .text()
             .await
-            .map_err(|err| err.into())
+            .map_err(Into::into)
             .and_then(|body| serialize_response(&body))?;
 
         Ok(study_queue)
