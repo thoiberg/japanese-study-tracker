@@ -14,9 +14,19 @@ chrono = { version = "0.4.26", features = ["serde"] }
 chrono-tz = "0.8.4"
 indexmap = "2.0.0"
 prost = "0.11.9"
-redis = { version = "0.23.0", features = ["serde_json", "tls-rustls", "tokio-comp", "tokio-rustls-comp"] }
+redis = { version = "0.25.4", features = [
+    "serde_json",
+    "tls-rustls",
+    "tokio-comp",
+    "tokio-rustls-comp",
+] }
 regex = "1.10.2"
-reqwest = { version = "0.11.18", default-features = false, features = ["serde_json", "json", "rustls-tls", "cookies"] }
+reqwest = { version = "0.11.18", default-features = false, features = [
+    "serde_json",
+    "json",
+    "rustls-tls",
+    "cookies",
+] }
 scraper = { version = "0.17.1", features = ["indexmap"] }
 serde = { version = "1.0.164", features = ["derive"] }
 serde_json = "1.0.99"
