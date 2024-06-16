@@ -4,6 +4,7 @@ use anyhow::anyhow;
 use async_trait::async_trait;
 use axum::{extract::State, Json};
 use bytes::Bytes;
+use chrono::{DateTime, Duration, Utc};
 use prost::Message;
 use reqwest::{Client, StatusCode};
 
@@ -32,8 +33,8 @@ impl Cacheable for AnkiData {
         CacheKey::Anki
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        Utc::now() + Duration::hours(1)
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {

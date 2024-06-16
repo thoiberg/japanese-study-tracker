@@ -2,7 +2,8 @@ use std::fmt::Display;
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use redis::{AsyncCommands, RedisError, ToRedisArgs};
+use chrono::{DateTime, Utc};
+use redis::{AsyncCommands, SetOptions, ToRedisArgs};
 use serde::de::DeserializeOwned;
 use tokio::sync::Mutex;
 
@@ -46,7 +47,7 @@ impl ToRedisArgs for CacheKey {
 #[async_trait]
 pub trait Cacheable: DeserializeOwned + serde::Serialize {
     fn cache_key() -> CacheKey;
-    fn ttl() -> usize;
+    fn expires_at() -> DateTime<Utc>;
     async fn api_fetch() -> anyhow::Result<Self>;
 
     async fn get(redis_client: &Option<redis::Client>) -> anyhow::Result<Self> {
@@ -63,6 +64,24 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
         let _ = write_result.map_err(Self::cache_log);
 
         Ok(api_data.into_inner())
+    }
+
+    async fn get_ttl(redis_client: &Option<redis::Client>) -> Option<u64> {
+        let mut conn = redis_client
+            .as_ref()?
+            .get_async_connection()
+            .await
+            .map_err(Self::cache_log)
+            .ok()?;
+
+        let remaining_ttl: Option<i32> = conn
+            .ttl(Self::cache_key())
+            .await
+            .map_err(Self::cache_log)
+            .ok();
+
+        // redis uses -1 and -2 as control codes
+        remaining_ttl.filter(|ttl| ttl > &0).map(|ttl| ttl as u64)
     }
 
     async fn cache_read(redis_client: &Option<redis::Client>) -> Option<Self> {
@@ -96,8 +115,14 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
         // not sure why it throws a compile error here and not in the value passed to serde_json
         // let unwrapped_data = *data.lock().await;
         let json_data = serde_json::to_string(&*data.lock().await)?;
-        let set_response: Result<(), RedisError> =
-            conn.set_ex(Self::cache_key(), json_data, Self::ttl()).await;
+
+        let unix_timestamp_expiry = usize::try_from(Self::expires_at().timestamp())?;
+        let options =
+            SetOptions::default().with_expiration(redis::SetExpiry::EXAT(unix_timestamp_expiry));
+
+        let set_response = conn
+            .set_options(Self::cache_key(), json_data, options)
+            .await;
 
         Ok(set_response?)
     }

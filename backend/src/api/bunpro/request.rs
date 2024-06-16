@@ -2,7 +2,7 @@ use std::env;
 
 use async_trait::async_trait;
 use axum::{extract::State, Json};
-use chrono::Utc;
+use chrono::{DateTime, Duration, Utc};
 use reqwest::{Client, StatusCode};
 use tokio::try_join;
 
@@ -36,8 +36,8 @@ impl Cacheable for StudyQueue {
         CacheKey::Bunpro
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        Utc::now() + Duration::hours(1)
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {

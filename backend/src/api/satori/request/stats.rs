@@ -1,6 +1,6 @@
 use anyhow::anyhow;
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use regex::Regex;
 use scraper::{ElementRef, Html, Selector};
 
@@ -18,8 +18,8 @@ impl Cacheable for SatoriStats {
         CacheKey::SatoriStats
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        Utc::now() + Duration::hours(1)
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {

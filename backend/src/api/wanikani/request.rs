@@ -2,7 +2,7 @@ use std::env;
 
 use async_trait::async_trait;
 use axum::{extract::State, http::StatusCode, Json};
-use chrono::{DateTime, Datelike, SecondsFormat, TimeZone, Utc};
+use chrono::{DateTime, Datelike, Duration, SecondsFormat, TimeZone, Utc};
 use chrono_tz::Asia::Tokyo;
 use reqwest::Client;
 use tokio::try_join;
@@ -34,8 +34,8 @@ impl Cacheable for WanikaniSummaryResponse {
         CacheKey::WanikaniSummary
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        Utc::now() + Duration::hours(1)
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {
@@ -58,8 +58,10 @@ impl Cacheable for WanikaniReviewStats {
         CacheKey::WanikaniStats
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        let one_hour = Duration::hours(1);
+
+        Utc::now() + one_hour
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {

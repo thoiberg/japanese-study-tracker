@@ -6,6 +6,7 @@ use crate::api::{
 };
 use anyhow::anyhow;
 use async_trait::async_trait;
+use chrono::{DateTime, Duration, Utc};
 use reqwest::{header, Client};
 
 #[async_trait]
@@ -14,8 +15,8 @@ impl Cacheable for BunproReviewStats {
         CacheKey::BunproStats
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        Utc::now() + Duration::hours(1)
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {
