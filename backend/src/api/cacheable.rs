@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use redis::{AsyncCommands, SetOptions, ToRedisArgs};
 use serde::de::DeserializeOwned;
 use tokio::sync::Mutex;
@@ -66,22 +66,26 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
         Ok(api_data.into_inner())
     }
 
-    async fn get_ttl(redis_client: &Option<redis::Client>) -> Option<u64> {
+    async fn get_expiry_time(redis_client: &Option<redis::Client>) -> Option<DateTime<Utc>> {
         let mut conn = redis_client
             .as_ref()?
-            .get_async_connection()
+            .get_multiplexed_tokio_connection()
             .await
             .map_err(Self::cache_log)
             .ok()?;
 
-        let remaining_ttl: Option<i32> = conn
+        let request_time = Utc::now();
+
+        let remaining_ttl: Option<i64> = conn
             .ttl(Self::cache_key())
             .await
             .map_err(Self::cache_log)
             .ok();
 
         // redis uses -1 and -2 as control codes
-        remaining_ttl.filter(|ttl| ttl > &0).map(|ttl| ttl as u64)
+        remaining_ttl
+            .filter(|ttl| ttl > &0)
+            .map(|ttl| request_time + Duration::seconds(ttl))
     }
 
     async fn cache_read(redis_client: &Option<redis::Client>) -> Option<Self> {
