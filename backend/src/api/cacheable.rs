@@ -87,7 +87,7 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
     async fn cache_read(redis_client: &Option<redis::Client>) -> Option<Self> {
         let client = redis_client.as_ref()?;
         let mut conn = client
-            .get_async_connection()
+            .get_multiplexed_tokio_connection()
             .await
             .map_err(Self::cache_log)
             .ok()?;
@@ -111,7 +111,7 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
         let client = redis_client
             .as_ref()
             .ok_or(anyhow!("No Redis Client set"))?;
-        let mut conn = client.get_async_connection().await?;
+        let mut conn = client.get_multiplexed_tokio_connection().await?;
         // not sure why it throws a compile error here and not in the value passed to serde_json
         // let unwrapped_data = *data.lock().await;
         let json_data = serde_json::to_string(&*data.lock().await)?;
