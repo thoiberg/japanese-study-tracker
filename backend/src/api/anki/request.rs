@@ -2,7 +2,7 @@ use std::{env, io::Cursor};
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use axum::{extract::State, Json};
+use axum::{extract::State, http::HeaderMap, Json};
 use bytes::Bytes;
 use chrono::{DateTime, Duration, Utc};
 use prost::Message;
@@ -11,7 +11,7 @@ use reqwest::{Client, StatusCode};
 use crate::api::{
     anki::proto_definitions,
     cacheable::{CacheKey, Cacheable},
-    internal_error, ErrorResponse,
+    generate_expiry_header, internal_error, ErrorResponse,
 };
 
 use super::{
@@ -21,10 +21,18 @@ use super::{
 
 pub async fn anki_handler(
     State(redis_client): State<Option<redis::Client>>,
-) -> Result<Json<AnkiData>, (StatusCode, Json<ErrorResponse>)> {
+) -> Result<(HeaderMap, Json<AnkiData>), (StatusCode, Json<ErrorResponse>)> {
     let anki_data = AnkiData::get(&redis_client).await.map_err(internal_error)?;
 
-    Ok(Json(anki_data))
+    let cache_expiry_time = AnkiData::get_expiry_time(&redis_client).await;
+    let mut headers = HeaderMap::new();
+
+    if let Some(cache_expiry_time) = cache_expiry_time {
+        let expiry_header = generate_expiry_header(&cache_expiry_time);
+        headers.insert(expiry_header.0, expiry_header.1);
+    }
+
+    Ok((headers, Json(anki_data)))
 }
 
 #[async_trait]

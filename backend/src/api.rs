@@ -1,4 +1,8 @@
-use axum::{http::StatusCode, Json};
+use axum::{
+    http::{HeaderName, HeaderValue, StatusCode},
+    Json,
+};
+use chrono::{DateTime, Utc};
 
 pub mod anki;
 pub mod bunpro;
@@ -23,5 +27,12 @@ where
         Json(ErrorResponse {
             message: err.to_string(),
         }),
+    )
+}
+
+pub fn generate_expiry_header(expires_at: &DateTime<Utc>) -> (HeaderName, HeaderValue) {
+    (
+        axum::http::header::EXPIRES,
+        axum::http::HeaderValue::from_str(&expires_at.to_rfc2822()).unwrap(),
     )
 }

@@ -1,7 +1,11 @@
 use std::env;
 
 use async_trait::async_trait;
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    Json,
+};
 use chrono::{DateTime, Datelike, Duration, SecondsFormat, TimeZone, Utc};
 use chrono_tz::Asia::Tokyo;
 use reqwest::Client;
@@ -9,14 +13,14 @@ use tokio::try_join;
 
 use crate::api::{
     cacheable::{CacheKey, Cacheable},
-    internal_error, ErrorResponse,
+    generate_expiry_header, internal_error, ErrorResponse,
 };
 
 use super::data::{WanikaniData, WanikaniReviewStats, WanikaniSummaryResponse};
 
 pub async fn wanikani_handler(
     State(redis_client): State<Option<redis::Client>>,
-) -> Result<Json<WanikaniData>, (StatusCode, Json<ErrorResponse>)> {
+) -> Result<(HeaderMap, Json<WanikaniData>), (StatusCode, Json<ErrorResponse>)> {
     let (summary_response, stats_response) = try_join!(
         WanikaniSummaryResponse::get(&redis_client),
         WanikaniReviewStats::get(&redis_client)
@@ -25,7 +29,26 @@ pub async fn wanikani_handler(
 
     let wanikani_data = WanikaniData::new(summary_response, stats_response);
 
-    Ok(Json(wanikani_data))
+    let headers = create_headers();
+
+    Ok((headers, Json(wanikani_data)))
+}
+
+fn create_headers() -> HeaderMap {
+    let expires_at = [
+        WanikaniSummaryResponse::expires_at(),
+        WanikaniReviewStats::expires_at(),
+    ]
+    .into_iter()
+    .min();
+
+    let mut header_map = HeaderMap::new();
+    if let Some(expires_at) = expires_at {
+        let expiry_header = generate_expiry_header(&expires_at);
+        header_map.insert(expiry_header.0, expiry_header.1);
+    }
+
+    header_map
 }
 
 #[async_trait]
