@@ -9,9 +9,10 @@ use prost::Message;
 use reqwest::{Client, StatusCode};
 
 use crate::api::{
+    add_expiry_header,
     anki::proto_definitions,
     cacheable::{CacheKey, Cacheable},
-    generate_expiry_header, internal_error, ErrorResponse,
+    internal_error, ErrorResponse,
 };
 
 use super::{
@@ -22,15 +23,10 @@ use super::{
 pub async fn anki_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Json<AnkiData>), (StatusCode, Json<ErrorResponse>)> {
-    let anki_data = AnkiData::get(&redis_client).await.map_err(internal_error)?;
+    let (anki_data, cache_expiry_time) =
+        AnkiData::get(&redis_client).await.map_err(internal_error)?;
 
-    let cache_expiry_time = AnkiData::get_expiry_time(&redis_client).await;
-    let mut headers = HeaderMap::new();
-
-    if let Some(cache_expiry_time) = cache_expiry_time {
-        let expiry_header = generate_expiry_header(&cache_expiry_time);
-        headers.insert(expiry_header.0, expiry_header.1);
-    }
+    let headers = add_expiry_header(HeaderMap::new(), &[cache_expiry_time]);
 
     Ok((headers, Json(anki_data)))
 }

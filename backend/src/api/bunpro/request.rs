@@ -7,9 +7,10 @@ use reqwest::{Client, StatusCode};
 use tokio::try_join;
 
 use crate::api::{
+    add_expiry_header,
     bunpro::data::BunproReviewStats,
     cacheable::{CacheKey, Cacheable},
-    generate_expiry_header, internal_error, ErrorResponse,
+    internal_error, ErrorResponse,
 };
 
 use super::data::{BunproData, StudyQueue};
@@ -19,30 +20,17 @@ mod stats;
 pub async fn bunpro_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Json<BunproData>), (StatusCode, Json<ErrorResponse>)> {
-    let (study_queue_data, stats_data) = try_join!(
+    let ((study_queue_data, study_queue_expiry), (stats_data, stats_expiry)) = try_join!(
         StudyQueue::get(&redis_client),
         BunproReviewStats::get(&redis_client)
     )
     .map_err(internal_error)?;
 
     let bunpro_data = BunproData::new(study_queue_data, stats_data);
-    let headers = create_headers();
+
+    let headers = add_expiry_header(HeaderMap::new(), &[study_queue_expiry, stats_expiry]);
 
     Ok((headers, Json(bunpro_data)))
-}
-
-fn create_headers() -> HeaderMap {
-    let expires_at = [StudyQueue::expires_at(), BunproReviewStats::expires_at()]
-        .into_iter()
-        .min();
-
-    let mut header_map = HeaderMap::new();
-    if let Some(expires_at) = expires_at {
-        let expiry_header = generate_expiry_header(&expires_at);
-        header_map.insert(expiry_header.0, expiry_header.1);
-    }
-
-    header_map
 }
 
 #[async_trait]

@@ -4,7 +4,7 @@ use axum::{extract::State, http::HeaderMap, Json};
 use reqwest::{Client, StatusCode};
 use tokio::try_join;
 
-use crate::api::{cacheable::Cacheable, generate_expiry_header, internal_error, ErrorResponse};
+use crate::api::{add_expiry_header, cacheable::Cacheable, internal_error, ErrorResponse};
 
 use super::data::{SatoriCurrentCardsResponse, SatoriData, SatoriNewCardsResponse, SatoriStats};
 
@@ -15,7 +15,11 @@ mod stats;
 pub async fn satori_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Json<SatoriData>), (StatusCode, Json<ErrorResponse>)> {
-    let (current_cards, new_cards, stats) = try_join!(
+    let (
+        (current_cards, current_cards_expiry),
+        (new_cards, new_cards_expiry),
+        (stats, stats_expiry),
+    ) = try_join!(
         SatoriCurrentCardsResponse::get(&redis_client),
         SatoriNewCardsResponse::get(&redis_client),
         SatoriStats::get(&redis_client),
@@ -24,27 +28,12 @@ pub async fn satori_handler(
 
     let satori_data = SatoriData::new(current_cards, new_cards, stats);
 
-    let headers = create_headers();
+    let headers = add_expiry_header(
+        HeaderMap::new(),
+        &[current_cards_expiry, new_cards_expiry, stats_expiry],
+    );
 
     Ok((headers, Json(satori_data)))
-}
-
-fn create_headers() -> HeaderMap {
-    let expires_at = [
-        SatoriCurrentCardsResponse::expires_at(),
-        SatoriNewCardsResponse::expires_at(),
-        SatoriStats::expires_at(),
-    ]
-    .into_iter()
-    .min();
-
-    let mut header_map = HeaderMap::new();
-    if let Some(expires_at) = expires_at {
-        let expiry_header = generate_expiry_header(&expires_at);
-        header_map.insert(expiry_header.0, expiry_header.1);
-    }
-
-    header_map
 }
 
 pub fn satori_client() -> anyhow::Result<Client> {

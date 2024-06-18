@@ -12,8 +12,9 @@ use reqwest::Client;
 use tokio::try_join;
 
 use crate::api::{
+    add_expiry_header,
     cacheable::{CacheKey, Cacheable},
-    generate_expiry_header, internal_error, ErrorResponse,
+    internal_error, ErrorResponse,
 };
 
 use super::data::{WanikaniData, WanikaniReviewStats, WanikaniSummaryResponse};
@@ -21,7 +22,7 @@ use super::data::{WanikaniData, WanikaniReviewStats, WanikaniSummaryResponse};
 pub async fn wanikani_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Json<WanikaniData>), (StatusCode, Json<ErrorResponse>)> {
-    let (summary_response, stats_response) = try_join!(
+    let ((summary_response, summary_expiry_time), (stats_response, stats_expiry_time)) = try_join!(
         WanikaniSummaryResponse::get(&redis_client),
         WanikaniReviewStats::get(&redis_client)
     )
@@ -29,26 +30,9 @@ pub async fn wanikani_handler(
 
     let wanikani_data = WanikaniData::new(summary_response, stats_response);
 
-    let headers = create_headers();
+    let headers = add_expiry_header(HeaderMap::new(), &[summary_expiry_time, stats_expiry_time]);
 
     Ok((headers, Json(wanikani_data)))
-}
-
-fn create_headers() -> HeaderMap {
-    let expires_at = [
-        WanikaniSummaryResponse::expires_at(),
-        WanikaniReviewStats::expires_at(),
-    ]
-    .into_iter()
-    .min();
-
-    let mut header_map = HeaderMap::new();
-    if let Some(expires_at) = expires_at {
-        let expiry_header = generate_expiry_header(&expires_at);
-        header_map.insert(expiry_header.0, expiry_header.1);
-    }
-
-    header_map
 }
 
 #[async_trait]

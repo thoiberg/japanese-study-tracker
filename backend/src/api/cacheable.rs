@@ -50,20 +50,24 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
     fn expires_at() -> DateTime<Utc>;
     async fn api_fetch() -> anyhow::Result<Self>;
 
-    async fn get(redis_client: &Option<redis::Client>) -> anyhow::Result<Self> {
+    async fn get(
+        redis_client: &Option<redis::Client>,
+    ) -> anyhow::Result<(Self, Option<DateTime<Utc>>)> {
         let cache_data = Self::cache_read(redis_client).await;
+        let expires_at = Self::get_expiry_time(redis_client).await;
 
         if let Some(cache_data) = cache_data {
-            return Ok(cache_data);
+            return Ok((cache_data, expires_at));
         }
 
         let api_data = Self::api_fetch().await?;
         let api_data = Mutex::new(api_data);
 
         let write_result = Self::cache_write(redis_client, &api_data).await;
+
         let _ = write_result.map_err(Self::cache_log);
 
-        Ok(api_data.into_inner())
+        Ok((api_data.into_inner(), Some(Self::expires_at())))
     }
 
     async fn get_expiry_time(redis_client: &Option<redis::Client>) -> Option<DateTime<Utc>> {
