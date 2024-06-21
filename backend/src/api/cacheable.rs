@@ -2,7 +2,8 @@ use std::fmt::Display;
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use redis::{AsyncCommands, RedisError, ToRedisArgs};
+use chrono::{DateTime, Duration, Utc};
+use redis::{AsyncCommands, SetOptions, ToRedisArgs};
 use serde::de::DeserializeOwned;
 use tokio::sync::Mutex;
 
@@ -46,29 +47,55 @@ impl ToRedisArgs for CacheKey {
 #[async_trait]
 pub trait Cacheable: DeserializeOwned + serde::Serialize {
     fn cache_key() -> CacheKey;
-    fn ttl() -> usize;
+    fn expires_at() -> DateTime<Utc>;
     async fn api_fetch() -> anyhow::Result<Self>;
 
-    async fn get(redis_client: &Option<redis::Client>) -> anyhow::Result<Self> {
+    async fn get(
+        redis_client: &Option<redis::Client>,
+    ) -> anyhow::Result<(Self, Option<DateTime<Utc>>)> {
         let cache_data = Self::cache_read(redis_client).await;
+        let expires_at = Self::get_expiry_time(redis_client).await;
 
         if let Some(cache_data) = cache_data {
-            return Ok(cache_data);
+            return Ok((cache_data, expires_at));
         }
 
         let api_data = Self::api_fetch().await?;
         let api_data = Mutex::new(api_data);
 
         let write_result = Self::cache_write(redis_client, &api_data).await;
+
         let _ = write_result.map_err(Self::cache_log);
 
-        Ok(api_data.into_inner())
+        Ok((api_data.into_inner(), Some(Self::expires_at())))
+    }
+
+    async fn get_expiry_time(redis_client: &Option<redis::Client>) -> Option<DateTime<Utc>> {
+        let mut conn = redis_client
+            .as_ref()?
+            .get_multiplexed_tokio_connection()
+            .await
+            .map_err(Self::cache_log)
+            .ok()?;
+
+        let request_time = Utc::now();
+
+        let remaining_ttl: Option<i64> = conn
+            .ttl(Self::cache_key())
+            .await
+            .map_err(Self::cache_log)
+            .ok();
+
+        // redis uses -1 and -2 as control codes
+        remaining_ttl
+            .filter(|ttl| ttl > &0)
+            .map(|ttl| request_time + Duration::seconds(ttl))
     }
 
     async fn cache_read(redis_client: &Option<redis::Client>) -> Option<Self> {
         let client = redis_client.as_ref()?;
         let mut conn = client
-            .get_async_connection()
+            .get_multiplexed_tokio_connection()
             .await
             .map_err(Self::cache_log)
             .ok()?;
@@ -92,12 +119,18 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
         let client = redis_client
             .as_ref()
             .ok_or(anyhow!("No Redis Client set"))?;
-        let mut conn = client.get_async_connection().await?;
+        let mut conn = client.get_multiplexed_tokio_connection().await?;
         // not sure why it throws a compile error here and not in the value passed to serde_json
         // let unwrapped_data = *data.lock().await;
         let json_data = serde_json::to_string(&*data.lock().await)?;
-        let set_response: Result<(), RedisError> =
-            conn.set_ex(Self::cache_key(), json_data, Self::ttl()).await;
+
+        let unix_timestamp_expiry = usize::try_from(Self::expires_at().timestamp())?;
+        let options =
+            SetOptions::default().with_expiration(redis::SetExpiry::EXAT(unix_timestamp_expiry));
+
+        let set_response = conn
+            .set_options(Self::cache_key(), json_data, options)
+            .await;
 
         Ok(set_response?)
     }

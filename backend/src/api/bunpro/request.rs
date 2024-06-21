@@ -1,12 +1,13 @@
 use std::env;
 
 use async_trait::async_trait;
-use axum::{extract::State, Json};
-use chrono::Utc;
+use axum::{extract::State, http::HeaderMap, Json};
+use chrono::{DateTime, Duration, Utc};
 use reqwest::{Client, StatusCode};
 use tokio::try_join;
 
 use crate::api::{
+    add_expiry_header,
     bunpro::data::BunproReviewStats,
     cacheable::{CacheKey, Cacheable},
     internal_error, ErrorResponse,
@@ -18,8 +19,8 @@ mod stats;
 
 pub async fn bunpro_handler(
     State(redis_client): State<Option<redis::Client>>,
-) -> Result<Json<BunproData>, (StatusCode, Json<ErrorResponse>)> {
-    let (study_queue_data, stats_data) = try_join!(
+) -> Result<(HeaderMap, Json<BunproData>), (StatusCode, Json<ErrorResponse>)> {
+    let ((study_queue_data, study_queue_expiry), (stats_data, stats_expiry)) = try_join!(
         StudyQueue::get(&redis_client),
         BunproReviewStats::get(&redis_client)
     )
@@ -27,7 +28,9 @@ pub async fn bunpro_handler(
 
     let bunpro_data = BunproData::new(study_queue_data, stats_data);
 
-    Ok(Json(bunpro_data))
+    let headers = add_expiry_header(HeaderMap::new(), &[study_queue_expiry, stats_expiry]);
+
+    Ok((headers, Json(bunpro_data)))
 }
 
 #[async_trait]
@@ -36,8 +39,8 @@ impl Cacheable for StudyQueue {
         CacheKey::Bunpro
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        Utc::now() + Duration::hours(1)
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {

@@ -1,13 +1,18 @@
 use std::env;
 
 use async_trait::async_trait;
-use axum::{extract::State, http::StatusCode, Json};
-use chrono::{DateTime, Datelike, SecondsFormat, TimeZone, Utc};
+use axum::{
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    Json,
+};
+use chrono::{DateTime, Datelike, Duration, SecondsFormat, TimeZone, Utc};
 use chrono_tz::Asia::Tokyo;
 use reqwest::Client;
 use tokio::try_join;
 
 use crate::api::{
+    add_expiry_header,
     cacheable::{CacheKey, Cacheable},
     internal_error, ErrorResponse,
 };
@@ -16,8 +21,8 @@ use super::data::{WanikaniData, WanikaniReviewStats, WanikaniSummaryResponse};
 
 pub async fn wanikani_handler(
     State(redis_client): State<Option<redis::Client>>,
-) -> Result<Json<WanikaniData>, (StatusCode, Json<ErrorResponse>)> {
-    let (summary_response, stats_response) = try_join!(
+) -> Result<(HeaderMap, Json<WanikaniData>), (StatusCode, Json<ErrorResponse>)> {
+    let ((summary_response, summary_expiry_time), (stats_response, stats_expiry_time)) = try_join!(
         WanikaniSummaryResponse::get(&redis_client),
         WanikaniReviewStats::get(&redis_client)
     )
@@ -25,7 +30,9 @@ pub async fn wanikani_handler(
 
     let wanikani_data = WanikaniData::new(summary_response, stats_response);
 
-    Ok(Json(wanikani_data))
+    let headers = add_expiry_header(HeaderMap::new(), &[summary_expiry_time, stats_expiry_time]);
+
+    Ok((headers, Json(wanikani_data)))
 }
 
 #[async_trait]
@@ -34,8 +41,8 @@ impl Cacheable for WanikaniSummaryResponse {
         CacheKey::WanikaniSummary
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        Utc::now() + Duration::hours(1)
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {
@@ -58,8 +65,10 @@ impl Cacheable for WanikaniReviewStats {
         CacheKey::WanikaniStats
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        let one_hour = Duration::hours(1);
+
+        Utc::now() + one_hour
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {

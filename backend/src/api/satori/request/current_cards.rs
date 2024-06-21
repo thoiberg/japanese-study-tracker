@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{DateTime, Duration, Utc};
 
 use crate::api::{
     cacheable::{CacheKey, Cacheable},
@@ -14,8 +14,8 @@ impl Cacheable for SatoriCurrentCardsResponse {
         CacheKey::SatoriReviewCards
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        Utc::now() + Duration::hours(1)
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {

@@ -2,12 +2,14 @@ use std::{env, io::Cursor};
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use axum::{extract::State, Json};
+use axum::{extract::State, http::HeaderMap, Json};
 use bytes::Bytes;
+use chrono::{DateTime, Duration, Utc};
 use prost::Message;
 use reqwest::{Client, StatusCode};
 
 use crate::api::{
+    add_expiry_header,
     anki::proto_definitions,
     cacheable::{CacheKey, Cacheable},
     internal_error, ErrorResponse,
@@ -20,10 +22,13 @@ use super::{
 
 pub async fn anki_handler(
     State(redis_client): State<Option<redis::Client>>,
-) -> Result<Json<AnkiData>, (StatusCode, Json<ErrorResponse>)> {
-    let anki_data = AnkiData::get(&redis_client).await.map_err(internal_error)?;
+) -> Result<(HeaderMap, Json<AnkiData>), (StatusCode, Json<ErrorResponse>)> {
+    let (anki_data, cache_expiry_time) =
+        AnkiData::get(&redis_client).await.map_err(internal_error)?;
 
-    Ok(Json(anki_data))
+    let headers = add_expiry_header(HeaderMap::new(), &[cache_expiry_time]);
+
+    Ok((headers, Json(anki_data)))
 }
 
 #[async_trait]
@@ -32,8 +37,8 @@ impl Cacheable for AnkiData {
         CacheKey::Anki
     }
 
-    fn ttl() -> usize {
-        3600
+    fn expires_at() -> DateTime<Utc> {
+        Utc::now() + Duration::hours(1)
     }
 
     async fn api_fetch() -> anyhow::Result<Self> {
