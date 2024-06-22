@@ -99,17 +99,16 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
             .await
             .map_err(Self::cache_log)
             .ok()?;
-        let cached_data: String = conn
-            .get(Self::cache_key())
+        let cached_data = conn
+            .get::<CacheKey, Option<String>>(Self::cache_key())
             .await
             .map_err(Self::cache_log)
-            .ok()?;
+            .ok()
+            .flatten()?;
 
-        let wanikani_data = serde_json::from_str::<Self>(&cached_data)
+        serde_json::from_str::<Self>(&cached_data)
             .map_err(Self::cache_log)
-            .ok()?;
-
-        Some(wanikani_data)
+            .ok()
     }
 
     async fn cache_write(
