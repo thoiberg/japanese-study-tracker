@@ -25,7 +25,7 @@ where
     (
         StatusCode::INTERNAL_SERVER_ERROR,
         Json(ErrorResponse {
-            message: err.to_string(),
+            message: "Something went wrong".to_string(),
         }),
     )
 }
