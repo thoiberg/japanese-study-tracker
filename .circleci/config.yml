@@ -10,7 +10,7 @@ jobs:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     docker:
-      - image: rust:1.74
+      - image: rust:1.80
     # Add steps to the job
     # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
@@ -21,7 +21,7 @@ jobs:
           working_directory: "backend"
   backend lint:
     docker:
-      - image: rust:1.74
+      - image: rust:1.80
     steps:
         - checkout
         - run:
@@ -32,7 +32,7 @@ jobs:
             working_directory: "backend"
   backend test:
     docker:
-      - image: rust:1.74
+      - image: rust:1.80
     steps:
       - checkout
       - run:
@@ -43,7 +43,7 @@ jobs:
   # frontend
   frontend lint:
     docker:
-      - image: node:20.10.0
+      - image: node:22.7.0
     steps:
       - checkout
       - run:
@@ -54,7 +54,7 @@ jobs:
           working_directory: frontend
   frontend unit test:
     docker:
-        - image: node:20.10.0
+        - image: node:22.7.0
     steps:
       - checkout
       - run:
@@ -65,7 +65,7 @@ jobs:
           working_directory: frontend
   frontend type check:
     docker:
-        - image: node:20.10.0
+        - image: node:22.7.0
     steps:
       - checkout
       - run:
