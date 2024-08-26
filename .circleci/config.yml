@@ -75,6 +75,15 @@ jobs:
             npm run type-check
           working_directory: frontend
 
+  production build:
+    docker:
+      - image: cimg/base:2023.06
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: docker build .
+
   deploy:
     docker:
       - image: cimg/base:2023.06
@@ -95,6 +104,7 @@ workflows:
       - frontend lint
       - frontend unit test
       - frontend type check
+      - production build
       - deploy:
           requires:
             - backend build

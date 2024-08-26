@@ -1,7 +1,7 @@
 ############################
 # Backend build
 ############################
-FROM rust:1.80-alpine3.18 AS backend-build
+FROM rust:1.80-alpine3.19 AS backend-build
 
 RUN apk add pkgconfig openssl openssl-dev musl musl-dev
 
@@ -28,7 +28,7 @@ RUN npm run build-only
 ############################
 # Executable
 ############################
-FROM alpine:3.18
+FROM alpine:3.19
 
 RUN apk add libc6-compat
 
