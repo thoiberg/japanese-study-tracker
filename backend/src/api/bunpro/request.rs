@@ -1,6 +1,5 @@
 use std::env;
 
-use async_trait::async_trait;
 use axum::{
     extract::State,
     http::{HeaderMap, StatusCode},
@@ -37,7 +36,6 @@ pub async fn bunpro_handler(
     Ok((headers, Json(bunpro_data)))
 }
 
-#[async_trait]
 impl Cacheable for StudyQueue {
     fn cache_key() -> CacheKey {
         CacheKey::Bunpro

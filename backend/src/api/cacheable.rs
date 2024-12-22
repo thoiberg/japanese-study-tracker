@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
 use anyhow::anyhow;
-use async_trait::async_trait;
 use chrono::{DateTime, Duration, Utc};
 use redis::{AsyncCommands, SetOptions, ToRedisArgs};
 use serde::de::DeserializeOwned;
@@ -44,7 +43,6 @@ impl ToRedisArgs for CacheKey {
     }
 }
 
-#[async_trait]
 pub trait Cacheable: DeserializeOwned + serde::Serialize {
     fn cache_key() -> CacheKey;
     fn expires_at() -> DateTime<Utc>;

@@ -1,6 +1,5 @@
 use std::env;
 
-use async_trait::async_trait;
 use axum::{
     extract::State,
     http::{HeaderMap, StatusCode},
@@ -35,7 +34,6 @@ pub async fn wanikani_handler(
     Ok((headers, Json(wanikani_data)))
 }
 
-#[async_trait]
 impl Cacheable for WanikaniSummaryResponse {
     fn cache_key() -> CacheKey {
         CacheKey::WanikaniSummary
@@ -59,7 +57,6 @@ impl Cacheable for WanikaniSummaryResponse {
     }
 }
 
-#[async_trait]
 impl Cacheable for WanikaniReviewStats {
     fn cache_key() -> CacheKey {
         CacheKey::WanikaniStats

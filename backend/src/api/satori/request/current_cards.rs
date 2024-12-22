@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use chrono::{DateTime, Duration, Utc};
 
 use crate::api::{
@@ -8,7 +7,6 @@ use crate::api::{
 
 use super::satori_client;
 
-#[async_trait]
 impl Cacheable for SatoriCurrentCardsResponse {
     fn cache_key() -> CacheKey {
         CacheKey::SatoriReviewCards

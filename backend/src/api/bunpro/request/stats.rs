@@ -5,11 +5,9 @@ use crate::api::{
     cacheable::{CacheKey, Cacheable},
 };
 use anyhow::anyhow;
-use async_trait::async_trait;
 use chrono::{DateTime, Duration, Utc};
 use reqwest::{header, Client};
 
-#[async_trait]
 impl Cacheable for BunproReviewStats {
     fn cache_key() -> CacheKey {
         CacheKey::BunproStats

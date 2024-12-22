@@ -1,7 +1,6 @@
 use std::{env, io::Cursor};
 
 use anyhow::anyhow;
-use async_trait::async_trait;
 use axum::{
     extract::State,
     http::{HeaderMap, StatusCode},
@@ -35,7 +34,6 @@ pub async fn anki_handler(
     Ok((headers, Json(anki_data)))
 }
 
-#[async_trait]
 impl Cacheable for AnkiData {
     fn cache_key() -> CacheKey {
         CacheKey::Anki
