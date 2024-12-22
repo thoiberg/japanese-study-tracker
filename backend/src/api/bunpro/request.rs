@@ -1,9 +1,12 @@
 use std::env;
 
-use async_trait::async_trait;
-use axum::{extract::State, http::HeaderMap, Json};
+use axum::{
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    Json,
+};
 use chrono::{DateTime, Duration, Utc};
-use reqwest::{Client, StatusCode};
+use reqwest::Client;
 use tokio::try_join;
 
 use crate::api::{
@@ -33,7 +36,6 @@ pub async fn bunpro_handler(
     Ok((headers, Json(bunpro_data)))
 }
 
-#[async_trait]
 impl Cacheable for StudyQueue {
     fn cache_key() -> CacheKey {
         CacheKey::Bunpro

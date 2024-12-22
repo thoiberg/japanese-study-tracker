@@ -1,5 +1,4 @@
 use anyhow::anyhow;
-use async_trait::async_trait;
 use chrono::{DateTime, Duration, Utc};
 use regex::Regex;
 use scraper::{ElementRef, Html, Selector};
@@ -12,7 +11,6 @@ use crate::api::{
     },
 };
 
-#[async_trait]
 impl Cacheable for SatoriStats {
     fn cache_key() -> CacheKey {
         CacheKey::SatoriStats
