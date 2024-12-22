@@ -1,7 +1,11 @@
 use std::env;
 
-use axum::{extract::State, http::HeaderMap, Json};
-use reqwest::{Client, StatusCode};
+use axum::{
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    Json,
+};
+use reqwest::Client;
 use tokio::try_join;
 
 use crate::api::{add_expiry_header, cacheable::Cacheable, internal_error, ErrorResponse};

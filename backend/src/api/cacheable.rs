@@ -123,7 +123,7 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
         // let unwrapped_data = *data.lock().await;
         let json_data = serde_json::to_string(&*data.lock().await)?;
 
-        let unix_timestamp_expiry = usize::try_from(Self::expires_at().timestamp())?;
+        let unix_timestamp_expiry = u64::try_from(Self::expires_at().timestamp())?;
         let options =
             SetOptions::default().with_expiration(redis::SetExpiry::EXAT(unix_timestamp_expiry));
 

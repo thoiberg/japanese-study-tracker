@@ -1,7 +1,7 @@
-use std::{env, fs, net::SocketAddr};
+use std::{env, fs};
 
 use axum::{http::StatusCode, response::Html, routing::get, Router};
-use tokio::signal;
+use tokio::{net::TcpListener, signal};
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -32,13 +32,11 @@ async fn main() {
         .route("/api/anki", get(anki_handler))
         .with_state(redis_client)
         .layer(TraceLayer::new_for_http());
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
-    let address = SocketAddr::from(([0, 0, 0, 0], 3000));
+    tracing::info!("listening on {}", listener.local_addr().unwrap());
 
-    tracing::info!("listening on {}", address);
-
-    axum::Server::bind(&address)
-        .serve(app.into_make_service())
+    axum::serve(listener, app.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap();

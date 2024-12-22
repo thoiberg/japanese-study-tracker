@@ -2,11 +2,15 @@ use std::{env, io::Cursor};
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use axum::{extract::State, http::HeaderMap, Json};
+use axum::{
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    Json,
+};
 use bytes::Bytes;
 use chrono::{DateTime, Duration, Utc};
 use prost::Message;
-use reqwest::{Client, StatusCode};
+use reqwest::Client;
 
 use crate::api::{
     add_expiry_header,

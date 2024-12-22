@@ -1,9 +1,13 @@
 use std::env;
 
 use async_trait::async_trait;
-use axum::{extract::State, http::HeaderMap, Json};
+use axum::{
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    Json,
+};
 use chrono::{DateTime, Duration, Utc};
-use reqwest::{Client, StatusCode};
+use reqwest::Client;
 use tokio::try_join;
 
 use crate::api::{
