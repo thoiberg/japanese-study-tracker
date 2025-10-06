@@ -26,6 +26,7 @@ async fn main() {
     let app = Router::new()
         .merge(Router::new().nest_service("/assets", ServeDir::new("dist/assets")))
         .route("/", get(root_handler))
+        .route("/htmx", get(htmx_handler))
         .route("/api/wanikani", get(wanikani_handler))
         .route("/api/bunpro", get(bunpro_handler))
         .route("/api/satori", get(satori_handler))
@@ -47,6 +48,17 @@ async fn root_handler() -> Result<Html<String>, (StatusCode, &'static str)> {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "index file could not be found",
+        )
+    })?;
+
+    Ok(Html(html_string))
+}
+
+async fn htmx_handler() -> Result<Html<String>, (StatusCode, &'static str)> {
+    let html_string = fs::read_to_string("./dist/htmx.html").map_err(|_| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "htmx file could not be found",
         )
     })?;
 

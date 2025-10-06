@@ -1,0 +1,63 @@
+body {
+  margin: 0;
+  height: 100%;
+  width: 100vw;
+}
+
+main {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+@media screen and (max-width: 726px) {
+  main {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, 100dvh);
+    scroll-snap-type: y mandatory;
+    overflow-y: auto;
+
+    & > * {
+      scroll-snap-align: start;
+    }
+  }
+}
+
+main > div {
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  justify-items: center;
+
+  background-color: var(--main-color, --color-background);
+  color: var(--accent-color, --color-text);
+}
+
+.app-stats {
+  font-size: 2.5rem;
+}
+
+.wanikani {
+  --accent-color: hsl(0, 0%, 100%);
+  --main-color: hsl(315, 100%, 44%);
+}
+
+.bunpro {
+  --accent-color: hsl(0, 0%, 94%);
+  --main-color: hsl(217, 76%, 54%);
+}
+
+.satori {
+  --accent-color: hsl(0, 0%, 100%);
+  --main-color: hsl(35, 100%, 50%);
+}
+
+.anki {
+  --accent-color: hsl(205, 95%, 64%);
+  --main-color: hsl(0, 0%, 93%);
+}
+
+.study-goal-indicator {
+  text-align: center;
+}
