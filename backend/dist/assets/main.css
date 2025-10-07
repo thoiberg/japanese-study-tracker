@@ -87,6 +87,11 @@ main > div {
   text-align: center;
 }
 
+.super {
+  font-size: 1rem;
+  vertical-align: text-top;
+}
+
 .loading-indicator {
   animation-name: rotate;
   animation-timing-function: ease-in-out;

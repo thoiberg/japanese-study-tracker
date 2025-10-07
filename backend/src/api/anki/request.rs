@@ -1,9 +1,11 @@
 use std::{env, io::Cursor};
 
 use anyhow::anyhow;
+use askama::Template;
 use axum::{
     extract::State,
     http::{HeaderMap, StatusCode},
+    response::Html,
     Json,
 };
 use bytes::Bytes;
@@ -32,6 +34,20 @@ pub async fn anki_handler(
     let headers = add_expiry_header(HeaderMap::new(), &[cache_expiry_time]);
 
     Ok((headers, Json(anki_data)))
+}
+
+pub async fn anki_htmx_hander(
+    State(redis_client): State<Option<redis::Client>>,
+) -> Result<(HeaderMap, Html<String>), StatusCode> {
+    let (anki_data, cache_expiry_time) = AnkiData::get(&redis_client)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let headers = add_expiry_header(HeaderMap::new(), &[cache_expiry_time]);
+
+    let html_string = anki_data.render().unwrap();
+
+    Ok((headers, Html(html_string)))
 }
 
 impl Cacheable for AnkiData {

@@ -6,7 +6,7 @@ use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::api::{
-    anki::anki_handler,
+    anki::{anki_handler, request::anki_htmx_hander},
     bunpro::{bunpro_handler, request::bunpro_htmx_hander},
     satori::{request::satori_htmx_handler, satori_handler},
     wanikani::{request::wanikani_htmx_handler, wanikani_handler},
@@ -38,6 +38,7 @@ async fn main() {
         .route("/api/satori", get(satori_handler))
         .route("/htmx/satori", get(satori_htmx_handler))
         .route("/api/anki", get(anki_handler))
+        .route("/htmx/anki", get(anki_htmx_hander))
         .with_state(redis_client)
         .layer(TraceLayer::new_for_http());
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
