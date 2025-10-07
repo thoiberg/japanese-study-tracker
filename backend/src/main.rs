@@ -7,7 +7,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::api::{
     anki::anki_handler,
-    bunpro::bunpro_handler,
+    bunpro::{bunpro_handler, request::bunpro_htmx_hander},
     satori::satori_handler,
     wanikani::{request::wanikani_htmx_handler, wanikani_handler},
 };
@@ -34,6 +34,7 @@ async fn main() {
         .route("/api/wanikani", get(wanikani_handler))
         .route("/htmx/wanikani", get(wanikani_htmx_handler))
         .route("/api/bunpro", get(bunpro_handler))
+        .route("/htmx/bunpro", get(bunpro_htmx_hander))
         .route("/api/satori", get(satori_handler))
         .route("/api/anki", get(anki_handler))
         .with_state(redis_client)
