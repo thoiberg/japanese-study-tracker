@@ -59,6 +59,10 @@ main > div {
   font-size: 2.5rem;
 }
 
+.fetched-stats {
+  font-size: 1rem;
+}
+
 .wanikani {
   --accent-color: hsl(0, 0%, 100%);
   --main-color: hsl(315, 100%, 44%);

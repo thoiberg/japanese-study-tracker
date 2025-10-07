@@ -6,10 +6,14 @@ use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::api::{
-    anki::anki_handler, bunpro::bunpro_handler, satori::satori_handler, wanikani::wanikani_handler,
+    anki::anki_handler,
+    bunpro::bunpro_handler,
+    satori::satori_handler,
+    wanikani::{request::wanikani_htmx_handler, wanikani_handler},
 };
 
 pub mod api;
+pub mod templates;
 
 #[tokio::main]
 async fn main() {
@@ -28,6 +32,7 @@ async fn main() {
         .route("/", get(root_handler))
         .route("/htmx", get(htmx_handler))
         .route("/api/wanikani", get(wanikani_handler))
+        .route("/htmx/wanikani", get(wanikani_htmx_handler))
         .route("/api/bunpro", get(bunpro_handler))
         .route("/api/satori", get(satori_handler))
         .route("/api/anki", get(anki_handler))
