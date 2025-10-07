@@ -1,6 +1,8 @@
+use askama::Template;
 use chrono::{DateTime, Utc};
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Template)]
+#[template(path = "satori.html")]
 pub struct SatoriData {
     data_updated_at: DateTime<Utc>,
     active_review_count: u32,
