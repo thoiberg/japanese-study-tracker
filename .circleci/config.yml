@@ -118,6 +118,7 @@ workflows:
             - frontend lint
             - frontend unit test
             - frontend type check
+            - production build
           filters:
             branches:
               only:
