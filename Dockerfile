@@ -36,6 +36,7 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY --from=backend-build /app/target/release/japanese-study-tracker-backend /app/
+COPY --from=backend-build /app/dist /app/dist
 COPY --from=frontend-build /app/dist/ /app/dist
 
 CMD ["./japanese-study-tracker-backend"]

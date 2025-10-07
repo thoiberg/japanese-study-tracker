@@ -1,0 +1,7 @@
+<div class="app-stats">
+    {% if daily_study_goal_met -%}
+        <p class="study-goal-indicator">🎉</p>
+    {%- endif %}
+    <p>Current Reviews: {{ active_review_count }}</p>
+    <p class="fetched-stats">Data Fetched at: {{ crate::templates::utils::format_date(self.data_updated_at) }}</p>
+</div>

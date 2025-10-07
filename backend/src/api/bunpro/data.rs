@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use askama::Template;
 use chrono::{DateTime, NaiveDate, Utc};
 use chrono_tz::Asia::Tokyo;
 use serde::{Deserialize, Serialize};
@@ -14,7 +15,8 @@ pub struct StudyQueue {
     pub fetched_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Template)]
+#[template(path = "bunpro.html")]
 pub struct BunproData {
     data_updated_at: DateTime<Utc>,
     active_review_count: u32,

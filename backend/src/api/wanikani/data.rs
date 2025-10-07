@@ -1,3 +1,4 @@
+use askama::Template;
 use chrono::{DateTime, Utc};
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -67,7 +68,8 @@ impl WanikaniReviewStats {
     }
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Template)]
+#[template(path = "wanikani.html")]
 pub struct WanikaniData {
     data_updated_at: DateTime<Utc>,
     active_lesson_count: u32,

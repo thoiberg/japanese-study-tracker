@@ -1,0 +1,18 @@
+<div class="app-stats">
+    {% if daily_study_goal_met -%}
+        <p class="study-goal-indicator">🎉</p>
+    {%- endif %}
+    <p>
+        Current Reviews: {{ active_review_count }}
+        {% if total_active_review_count > active_review_count -%}
+            <span class="super">{{ total_active_review_count - active_review_count }}</span>
+        {%- endif %}
+    </p>
+    <p>
+        New Cards: {{ new_card_count }}
+        {% if total_new_card_count > new_card_count -%}
+            <span class="super">{{ total_new_card_count - total_active_review_count}}</span>
+        {%- endif %}
+    </p>
+    <p class="fetched-stats">Data Fetched at: {{ crate::templates::utils::format_date(self.data_updated_at) }}</p>
+</div>

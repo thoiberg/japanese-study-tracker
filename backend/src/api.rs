@@ -1,5 +1,6 @@
 use axum::{
     http::{HeaderMap, HeaderName, HeaderValue, StatusCode},
+    response::Html,
     Json,
 };
 use chrono::{DateTime, Utc};
@@ -15,7 +16,7 @@ pub struct ErrorResponse {
     message: String,
 }
 
-pub fn internal_error<E>(err: E) -> (StatusCode, Json<ErrorResponse>)
+pub fn internal_error<E>(err: E) -> (axum::http::StatusCode, Json<ErrorResponse>)
 where
     E: Into<anyhow::Error>,
 {
@@ -27,6 +28,21 @@ where
         Json(ErrorResponse {
             message: "Something went wrong".to_string(),
         }),
+    )
+}
+
+pub type HtmlErrorResponse = (StatusCode, Html<String>);
+
+pub fn internal_error_html<E>(err: E) -> HtmlErrorResponse
+where
+    E: Into<anyhow::Error>,
+{
+    let err = err.into();
+    tracing::error!("Error: {}", err.to_string());
+
+    (
+        axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+        Html("Something went wrong".to_string()),
     )
 }
 
