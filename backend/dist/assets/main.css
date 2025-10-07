@@ -28,10 +28,6 @@ main {
   grid-template-rows: 1fr 1fr;
 }
 
-svg {
-  width: 100px;
-}
-
 @media screen and (max-width: 726px) {
   main {
     grid-template-columns: 1fr;
