@@ -10,25 +10,25 @@ use tokio::try_join;
 use crate::api::{
     add_expiry_header,
     cacheable::{CacheKey, Cacheable},
-    internal_error_html, HtmlErrorResponse,
+    internal_error, HtmlErrorResponse,
 };
 
 use super::data::{WanikaniData, WanikaniReviewStats, WanikaniSummaryResponse};
 
-pub async fn wanikani_htmx_handler(
+pub async fn wanikani_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
     let ((summary_response, summary_expiry_time), (stats_response, stats_expiry_time)) = try_join!(
         WanikaniSummaryResponse::get(&redis_client),
         WanikaniReviewStats::get(&redis_client)
     )
-    .map_err(internal_error_html)?;
+    .map_err(internal_error)?;
 
     let wanikani_data = WanikaniData::new(summary_response, stats_response);
 
     let headers = add_expiry_header(HeaderMap::new(), &[summary_expiry_time, stats_expiry_time]);
 
-    let html_string = wanikani_data.render().map_err(internal_error_html)?;
+    let html_string = wanikani_data.render().map_err(internal_error)?;
 
     Ok((headers, Html(html_string)))
 }

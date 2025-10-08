@@ -10,26 +10,26 @@ use crate::api::{
     add_expiry_header,
     bunpro::data::BunproReviewStats,
     cacheable::{CacheKey, Cacheable},
-    internal_error_html, HtmlErrorResponse,
+    internal_error, HtmlErrorResponse,
 };
 
 use super::data::{BunproData, StudyQueue};
 
 mod stats;
 
-pub async fn bunpro_htmx_hander(
+pub async fn bunpro_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
     let ((study_queue_data, study_queue_expiry), (stats_data, stats_expiry)) = try_join!(
         StudyQueue::get(&redis_client),
         BunproReviewStats::get(&redis_client)
     )
-    .map_err(internal_error_html)?;
+    .map_err(internal_error)?;
 
     let bunpro_data = BunproData::new(study_queue_data, stats_data);
 
     let headers = add_expiry_header(HeaderMap::new(), &[study_queue_expiry, stats_expiry]);
-    let html_string = bunpro_data.render().map_err(internal_error_html)?;
+    let html_string = bunpro_data.render().map_err(internal_error)?;
 
     Ok((headers, Html(html_string)))
 }

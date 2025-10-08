@@ -12,7 +12,7 @@ pub mod wanikani;
 
 pub type HtmlErrorResponse = (StatusCode, Html<String>);
 
-pub fn internal_error_html<E>(err: E) -> HtmlErrorResponse
+pub fn internal_error<E>(err: E) -> HtmlErrorResponse
 where
     E: Into<anyhow::Error>,
 {

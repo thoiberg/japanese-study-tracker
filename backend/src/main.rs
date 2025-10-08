@@ -6,8 +6,7 @@ use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::api::{
-    anki::request::anki_htmx_hander, bunpro::request::bunpro_htmx_hander,
-    satori::request::satori_htmx_handler, wanikani::request::wanikani_htmx_handler,
+    anki::anki_handler, bunpro::bunpro_handler, satori::satori_handler, wanikani::wanikani_handler,
 };
 
 pub mod api;
@@ -27,11 +26,11 @@ async fn main() {
 
     let app = Router::new()
         .merge(Router::new().nest_service("/assets", ServeDir::new("dist/assets")))
-        .route("/htmx", get(htmx_handler))
-        .route("/htmx/wanikani", get(wanikani_htmx_handler))
-        .route("/htmx/bunpro", get(bunpro_htmx_hander))
-        .route("/htmx/satori", get(satori_htmx_handler))
-        .route("/htmx/anki", get(anki_htmx_hander))
+        .route("/", get(root_handler))
+        .route("/wanikani", get(wanikani_handler))
+        .route("/bunpro", get(bunpro_handler))
+        .route("/satori", get(satori_handler))
+        .route("/anki", get(anki_handler))
         .with_state(redis_client)
         .layer(TraceLayer::new_for_http());
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
@@ -44,7 +43,7 @@ async fn main() {
         .unwrap();
 }
 
-async fn htmx_handler() -> Result<Html<String>, (StatusCode, &'static str)> {
+async fn root_handler() -> Result<Html<String>, (StatusCode, &'static str)> {
     let html_string = fs::read_to_string("./dist/htmx.html").map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
