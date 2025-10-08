@@ -6,10 +6,8 @@ use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::api::{
-    anki::{anki_handler, request::anki_htmx_hander},
-    bunpro::{bunpro_handler, request::bunpro_htmx_hander},
-    satori::{request::satori_htmx_handler, satori_handler},
-    wanikani::{request::wanikani_htmx_handler, wanikani_handler},
+    anki::request::anki_htmx_hander, bunpro::request::bunpro_htmx_hander,
+    satori::request::satori_htmx_handler, wanikani::request::wanikani_htmx_handler,
 };
 
 pub mod api;
@@ -29,15 +27,10 @@ async fn main() {
 
     let app = Router::new()
         .merge(Router::new().nest_service("/assets", ServeDir::new("dist/assets")))
-        .route("/", get(root_handler))
         .route("/htmx", get(htmx_handler))
-        .route("/api/wanikani", get(wanikani_handler))
         .route("/htmx/wanikani", get(wanikani_htmx_handler))
-        .route("/api/bunpro", get(bunpro_handler))
         .route("/htmx/bunpro", get(bunpro_htmx_hander))
-        .route("/api/satori", get(satori_handler))
         .route("/htmx/satori", get(satori_htmx_handler))
-        .route("/api/anki", get(anki_handler))
         .route("/htmx/anki", get(anki_htmx_hander))
         .with_state(redis_client)
         .layer(TraceLayer::new_for_http());
@@ -49,17 +42,6 @@ async fn main() {
         .with_graceful_shutdown(shutdown_signal())
         .await
         .unwrap();
-}
-
-async fn root_handler() -> Result<Html<String>, (StatusCode, &'static str)> {
-    let html_string = fs::read_to_string("./dist/index.html").map_err(|_| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            "index file could not be found",
-        )
-    })?;
-
-    Ok(Html(html_string))
 }
 
 async fn htmx_handler() -> Result<Html<String>, (StatusCode, &'static str)> {
