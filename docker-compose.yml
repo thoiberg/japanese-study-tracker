@@ -13,15 +13,6 @@ services:
       - .env.development
     environment:
       - REDIS_URL=redis://redis:6379
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: dev.Dockerfile
-    volumes:
-      - ./frontend:/app
-      - node_modules:/app/node_modules
-    ports:
-      - "5173:5173"
   redis:
     image: redis:latest
     volumes:
@@ -29,5 +20,4 @@ services:
 
 volumes:
   rust_target:
-  node_modules:
   redis_data:

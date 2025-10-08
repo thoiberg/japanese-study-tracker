@@ -45,41 +45,6 @@ jobs:
           command: "cargo test"
           working_directory: "backend"
 
-  # frontend
-  frontend lint:
-    docker:
-      - image: node:22.7.0
-    steps:
-      - checkout
-      - run:
-          name: Linting
-          command: |
-            npm install
-            npm run lint
-          working_directory: frontend
-  frontend unit test:
-    docker:
-        - image: node:22.7.0
-    steps:
-      - checkout
-      - run:
-          name: Unit test
-          command: |
-            npm install
-            npm run test:unit
-          working_directory: frontend
-  frontend type check:
-    docker:
-        - image: node:22.7.0
-    steps:
-      - checkout
-      - run:
-          name: Type check
-          command: |
-            npm install
-            npm run type-check
-          working_directory: frontend
-
   production build:
     docker:
       - image: cimg/base:2025.10
@@ -106,18 +71,12 @@ workflows:
       - backend build
       - backend lint
       - backend test
-      - frontend lint
-      - frontend unit test
-      - frontend type check
       - production build
       - deploy:
           requires:
             - backend build
             - backend lint
             - backend test
-            - frontend lint
-            - frontend unit test
-            - frontend type check
             - production build
           filters:
             branches:
