@@ -1,12 +1,7 @@
 use std::env;
 
 use askama::Template;
-use axum::{
-    extract::State,
-    http::{HeaderMap, StatusCode},
-    response::Html,
-    Json,
-};
+use axum::{extract::State, http::HeaderMap, response::Html};
 use chrono::{DateTime, Datelike, Duration, SecondsFormat, TimeZone, Utc};
 use chrono_tz::Asia::Tokyo;
 use reqwest::Client;
@@ -15,14 +10,14 @@ use tokio::try_join;
 use crate::api::{
     add_expiry_header,
     cacheable::{CacheKey, Cacheable},
-    internal_error, internal_error_html, ErrorResponse, HtmlErrorResponse,
+    internal_error, HtmlErrorResponse,
 };
 
 use super::data::{WanikaniData, WanikaniReviewStats, WanikaniSummaryResponse};
 
 pub async fn wanikani_handler(
     State(redis_client): State<Option<redis::Client>>,
-) -> Result<(HeaderMap, Json<WanikaniData>), (StatusCode, Json<ErrorResponse>)> {
+) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
     let ((summary_response, summary_expiry_time), (stats_response, stats_expiry_time)) = try_join!(
         WanikaniSummaryResponse::get(&redis_client),
         WanikaniReviewStats::get(&redis_client)
@@ -33,23 +28,7 @@ pub async fn wanikani_handler(
 
     let headers = add_expiry_header(HeaderMap::new(), &[summary_expiry_time, stats_expiry_time]);
 
-    Ok((headers, Json(wanikani_data)))
-}
-
-pub async fn wanikani_htmx_handler(
-    State(redis_client): State<Option<redis::Client>>,
-) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
-    let ((summary_response, summary_expiry_time), (stats_response, stats_expiry_time)) = try_join!(
-        WanikaniSummaryResponse::get(&redis_client),
-        WanikaniReviewStats::get(&redis_client)
-    )
-    .map_err(internal_error_html)?;
-
-    let wanikani_data = WanikaniData::new(summary_response, stats_response);
-
-    let headers = add_expiry_header(HeaderMap::new(), &[summary_expiry_time, stats_expiry_time]);
-
-    let html_string = wanikani_data.render().map_err(internal_error_html)?;
+    let html_string = wanikani_data.render().map_err(internal_error)?;
 
     Ok((headers, Html(html_string)))
 }

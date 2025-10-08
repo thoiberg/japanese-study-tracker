@@ -2,12 +2,7 @@ use std::{env, io::Cursor};
 
 use anyhow::anyhow;
 use askama::Template;
-use axum::{
-    extract::State,
-    http::{HeaderMap, StatusCode},
-    response::Html,
-    Json,
-};
+use axum::{extract::State, http::HeaderMap, response::Html};
 use bytes::Bytes;
 use chrono::{DateTime, Duration, Utc};
 use prost::Message;
@@ -17,7 +12,7 @@ use crate::api::{
     add_expiry_header,
     anki::proto_definitions,
     cacheable::{CacheKey, Cacheable},
-    internal_error, internal_error_html, ErrorResponse, HtmlErrorResponse,
+    internal_error, HtmlErrorResponse,
 };
 
 use super::{
@@ -27,25 +22,13 @@ use super::{
 
 pub async fn anki_handler(
     State(redis_client): State<Option<redis::Client>>,
-) -> Result<(HeaderMap, Json<AnkiData>), (StatusCode, Json<ErrorResponse>)> {
+) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
     let (anki_data, cache_expiry_time) =
         AnkiData::get(&redis_client).await.map_err(internal_error)?;
 
     let headers = add_expiry_header(HeaderMap::new(), &[cache_expiry_time]);
 
-    Ok((headers, Json(anki_data)))
-}
-
-pub async fn anki_htmx_hander(
-    State(redis_client): State<Option<redis::Client>>,
-) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
-    let (anki_data, cache_expiry_time) = AnkiData::get(&redis_client)
-        .await
-        .map_err(internal_error_html)?;
-
-    let headers = add_expiry_header(HeaderMap::new(), &[cache_expiry_time]);
-
-    let html_string = anki_data.render().map_err(internal_error_html)?;
+    let html_string = anki_data.render().map_err(internal_error)?;
 
     Ok((headers, Html(html_string)))
 }
