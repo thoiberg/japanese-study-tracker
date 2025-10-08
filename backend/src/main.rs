@@ -44,7 +44,7 @@ async fn main() {
 }
 
 async fn root_handler() -> Result<Html<String>, (StatusCode, &'static str)> {
-    let html_string = fs::read_to_string("./dist/htmx.html").map_err(|_| {
+    let html_string = fs::read_to_string("./dist/index.html").map_err(|_| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "htmx file could not be found",
