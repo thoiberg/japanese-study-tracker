@@ -60,7 +60,7 @@ jobs:
     steps:
       - checkout
       - run: sudo apt-get update && sudo apt-get install -y curl
-      - run: curl -L https://fly.io/install.sh | sh
+      - run: curl -L https://fly.io/install.sh | sh -s -- --non-interactive
       - run: /home/circleci/.fly/bin/flyctl deploy --remote-only
 
 # Orchestrate jobs using workflows
