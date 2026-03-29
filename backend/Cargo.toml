@@ -21,9 +21,9 @@ redis = { version = "0.27.6", features = [
     "tokio-rustls-comp",
 ] }
 regex = "1.11.1"
-reqwest = { version = "0.12.9", default-features = false, features = [
+reqwest = { version = "0.13.2", default-features = false, features = [
     "json",
-    "rustls-tls",
+    "rustls",
     "cookies",
 ] }
 scraper = { version = "0.22.0", features = ["indexmap"] }
