@@ -78,6 +78,10 @@ async fn shutdown_signal() {
 }
 
 fn get_redis_connection() -> Option<redis::Client> {
+    rustls::crypto::aws_lc_rs::default_provider()
+        .install_default()
+        .expect("Failed to install rustls crypto provider");
+
     let redis_client: anyhow::Result<redis::Client> = env::var("REDIS_URL")
         .map_err(Into::into)
         .and_then(|redis_url| Ok(redis::Client::open(redis_url)?));
