@@ -37,14 +37,7 @@ impl Cacheable for SatoriStats {
         let heatmap_js_selector = Selector::parse("script[type=\"text/javascript\"]").unwrap();
         let elements: Vec<_> = document.select(&heatmap_js_selector).collect();
 
-        if elements.len() != 1 {
-            anyhow::bail!(format!(
-                "Expected to find 1 element, found {} elements",
-                elements.len()
-            ))
-        }
-
-        let heat_data_json = extract_heat_data_from_js(elements.first().unwrap())?;
+        let heat_data_json = extract_heat_data_from_js(elements.last().unwrap())?;
 
         let todays_heat_level = todays_heat_level(heat_data_json, None);
 
