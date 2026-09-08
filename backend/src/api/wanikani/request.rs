@@ -19,8 +19,8 @@ pub async fn wanikani_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
     let ((summary_response, summary_expiry_time), (stats_response, stats_expiry_time)) = try_join!(
-        WanikaniSummaryResponse::get(&redis_client),
-        WanikaniReviewStats::get(&redis_client)
+        WanikaniSummaryResponse::get(&redis_client, None),
+        WanikaniReviewStats::get(&redis_client, None)
     )
     .map_err(internal_error)?;
 
@@ -42,7 +42,7 @@ impl Cacheable for WanikaniSummaryResponse {
         Utc::now() + Duration::hours(1)
     }
 
-    async fn api_fetch() -> anyhow::Result<Self> {
+    async fn api_fetch(_client: Option<&reqwest::Client>) -> anyhow::Result<Self> {
         let client = wanikani_client()?;
 
         client
@@ -67,7 +67,7 @@ impl Cacheable for WanikaniReviewStats {
         Utc::now() + one_hour
     }
 
-    async fn api_fetch() -> anyhow::Result<Self> {
+    async fn api_fetch(_client: Option<&reqwest::Client>) -> anyhow::Result<Self> {
         let url = stats_api_url(None);
         let client = wanikani_client()?;
 

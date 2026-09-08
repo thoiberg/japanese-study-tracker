@@ -1,88 +1,33 @@
-use std::env;
-
 use askama::Template;
 use axum::{extract::State, http::HeaderMap, response::Html};
-use chrono::{DateTime, Duration, Utc};
-use reqwest::Client;
 use tokio::try_join;
 
 use crate::api::{
-    add_expiry_header,
-    bunpro::data::BunproReviewStats,
-    cacheable::{CacheKey, Cacheable},
-    internal_error, HtmlErrorResponse,
+    add_expiry_header, bunpro::data::BunproActivityStats, cacheable::Cacheable, internal_error,
+    HtmlErrorResponse,
 };
 
-use super::data::{BunproData, StudyQueue};
+use super::data::{BunproData, BunproDueStats};
 
-mod stats;
+mod activity;
+mod client;
+mod due;
 
 pub async fn bunpro_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
-    let ((study_queue_data, study_queue_expiry), (stats_data, stats_expiry)) = try_join!(
-        StudyQueue::get(&redis_client),
-        BunproReviewStats::get(&redis_client)
+    let client = client::bunpro_client().await.map_err(internal_error)?;
+
+    let ((due_data, study_queue_expiry), (stats_data, stats_expiry)) = try_join!(
+        BunproDueStats::get(&redis_client, Some(&client)),
+        BunproActivityStats::get(&redis_client, Some(&client))
     )
     .map_err(internal_error)?;
 
-    let bunpro_data = BunproData::new(study_queue_data, stats_data);
+    let bunpro_data = BunproData::new(due_data, stats_data);
 
     let headers = add_expiry_header(HeaderMap::new(), &[study_queue_expiry, stats_expiry]);
     let html_string = bunpro_data.render().map_err(internal_error)?;
 
     Ok((headers, Html(html_string)))
-}
-
-impl Cacheable for StudyQueue {
-    fn cache_key() -> CacheKey {
-        CacheKey::Bunpro
-    }
-
-    fn expires_at() -> DateTime<Utc> {
-        Utc::now() + Duration::hours(1)
-    }
-
-    async fn api_fetch() -> anyhow::Result<Self> {
-        let bunpro_api_token = env::var("BUNPRO_API_TOKEN")?;
-        let url = format!("https://bunpro.jp/api/user/{bunpro_api_token}/study_queue");
-
-        let study_queue = Client::new()
-            .get(url)
-            .send()
-            .await?
-            .error_for_status()?
-            .text()
-            .await
-            .map_err(Into::into)
-            .and_then(|body| serialize_response(&body))?;
-
-        Ok(study_queue)
-    }
-}
-
-fn serialize_response(body: &str) -> anyhow::Result<StudyQueue> {
-    let mut json: StudyQueue = serde_json::from_str(body)?;
-
-    json.fetched_at = Some(Utc::now());
-
-    Ok(json)
-}
-
-#[cfg(test)]
-mod test_super {
-    use super::*;
-
-    #[test]
-    fn test_bunpro_with_reviews() {
-        let with_reviews = include_str!("./fixtures/bunpro_with_reviews.json");
-        let response = serialize_response(with_reviews);
-        assert!(response.is_ok());
-    }
-
-    #[test]
-    fn test_bunpro_with_no_reviews() {
-        let with_no_reviews = include_str!("./fixtures/bunpro_with_no_reviews.json");
-        assert!(serialize_response(with_no_reviews).is_ok());
-    }
 }

@@ -21,9 +21,9 @@ pub async fn satori_handler(
         (new_cards, new_cards_expiry),
         (stats, stats_expiry),
     ) = try_join!(
-        SatoriCurrentCardsResponse::get(&redis_client),
-        SatoriNewCardsResponse::get(&redis_client),
-        SatoriStats::get(&redis_client),
+        SatoriCurrentCardsResponse::get(&redis_client, None),
+        SatoriNewCardsResponse::get(&redis_client, None),
+        SatoriStats::get(&redis_client, None),
     )
     .map_err(internal_error)?;
 

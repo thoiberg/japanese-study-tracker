@@ -16,7 +16,7 @@ impl Cacheable for SatoriNewCardsResponse {
         Utc::now() + Duration::hours(1)
     }
 
-    async fn api_fetch() -> anyhow::Result<Self> {
+    async fn api_fetch(_client: Option<&reqwest::Client>) -> anyhow::Result<Self> {
         get_new_cards().await
     }
 }

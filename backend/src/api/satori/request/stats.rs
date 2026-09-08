@@ -20,7 +20,7 @@ impl Cacheable for SatoriStats {
         Utc::now() + Duration::hours(1)
     }
 
-    async fn api_fetch() -> anyhow::Result<Self> {
+    async fn api_fetch(_client: Option<&reqwest::Client>) -> anyhow::Result<Self> {
         let client = satori_client()?;
 
         let html = client
