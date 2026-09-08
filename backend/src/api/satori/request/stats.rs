@@ -5,10 +5,7 @@ use scraper::{ElementRef, Html, Selector};
 
 use crate::api::{
     cacheable::{CacheKey, Cacheable},
-    satori::{
-        data::{SatoriHeatData, SatoriHeatLevel, SatoriStats},
-        request::satori_client,
-    },
+    satori::data::{SatoriHeatData, SatoriHeatLevel, SatoriStats},
 };
 
 impl Cacheable for SatoriStats {
@@ -20,8 +17,8 @@ impl Cacheable for SatoriStats {
         Utc::now() + Duration::hours(1)
     }
 
-    async fn api_fetch(_client: Option<&reqwest::Client>) -> anyhow::Result<Self> {
-        let client = satori_client()?;
+    async fn api_fetch(client: Option<&reqwest::Client>) -> anyhow::Result<Self> {
+        let client = client.expect("client not passed in");
 
         let html = client
             .get("https://www.satorireader.com/dashboard")

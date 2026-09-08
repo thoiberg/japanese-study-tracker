@@ -16,14 +16,15 @@ mod stats;
 pub async fn satori_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
+    let client = satori_client().map_err(internal_error)?;
     let (
         (current_cards, current_cards_expiry),
         (new_cards, new_cards_expiry),
         (stats, stats_expiry),
     ) = try_join!(
-        SatoriCurrentCardsResponse::get(&redis_client, None),
-        SatoriNewCardsResponse::get(&redis_client, None),
-        SatoriStats::get(&redis_client, None),
+        SatoriCurrentCardsResponse::get(&redis_client, Some(&client)),
+        SatoriNewCardsResponse::get(&redis_client, Some(&client)),
+        SatoriStats::get(&redis_client, Some(&client)),
     )
     .map_err(internal_error)?;
 
@@ -39,7 +40,7 @@ pub async fn satori_handler(
     Ok((headers, Html(html_string)))
 }
 
-pub fn satori_client() -> anyhow::Result<Client> {
+fn satori_client() -> anyhow::Result<Client> {
     let satori_cookie = env::var("SATORI_COOKIE")?;
 
     let mut headers = reqwest::header::HeaderMap::new();

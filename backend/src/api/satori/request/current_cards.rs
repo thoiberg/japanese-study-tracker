@@ -5,8 +5,6 @@ use crate::api::{
     satori::data::SatoriCurrentCardsResponse,
 };
 
-use super::satori_client;
-
 impl Cacheable for SatoriCurrentCardsResponse {
     fn cache_key() -> CacheKey {
         CacheKey::SatoriReviewCards
@@ -16,13 +14,15 @@ impl Cacheable for SatoriCurrentCardsResponse {
         Utc::now() + Duration::hours(1)
     }
 
-    async fn api_fetch(_client: Option<&reqwest::Client>) -> anyhow::Result<Self> {
-        get_current_cards().await
+    async fn api_fetch(client: Option<&reqwest::Client>) -> anyhow::Result<Self> {
+        get_current_cards(client).await
     }
 }
 
-async fn get_current_cards() -> anyhow::Result<SatoriCurrentCardsResponse> {
-    let client = satori_client()?;
+async fn get_current_cards(
+    client: Option<&reqwest::Client>,
+) -> anyhow::Result<SatoriCurrentCardsResponse> {
+    let client = client.expect("client not passed in");
 
     client
         .get("https://www.satorireader.com/api/studylist/due/count")
