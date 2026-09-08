@@ -1,7 +1,7 @@
 ############################
 # Backend build
 ############################
-FROM rust:1.90-alpine3.22 AS backend-build
+FROM rust:1.98-alpine3.24 AS backend-build
 
 RUN apk add pkgconfig openssl openssl-dev musl musl-dev
 
@@ -15,7 +15,7 @@ RUN cargo build --release
 ############################
 # Executable
 ############################
-FROM alpine:3.22
+FROM alpine:3.24
 
 RUN apk add libc6-compat
 
