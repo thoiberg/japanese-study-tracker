@@ -1,4 +1,4 @@
-FROM rust:1.90
+FROM rust:1.98
 
 RUN mkdir /app
 WORKDIR /app

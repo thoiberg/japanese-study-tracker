@@ -3,13 +3,14 @@ use std::fmt::Display;
 use anyhow::anyhow;
 use chrono::{DateTime, Duration, Utc};
 use redis::{AsyncCommands, SetOptions, ToRedisArgs};
+use reqwest::Client;
 use serde::de::DeserializeOwned;
 use tokio::sync::Mutex;
 
 pub enum CacheKey {
     WanikaniSummary,
     WanikaniStats,
-    Bunpro,
+    BunproDue,
     BunproStats,
     SatoriReviewCards,
     SatoriNewCards,
@@ -22,7 +23,7 @@ impl Display for CacheKey {
         let cache_key = match self {
             CacheKey::WanikaniSummary => "wanikani_summary_data",
             CacheKey::WanikaniStats => "wanikani_stats_data",
-            CacheKey::Bunpro => "bunpro_data",
+            CacheKey::BunproDue => "bunpro_due_data",
             CacheKey::BunproStats => "bunpro_stats",
             CacheKey::SatoriReviewCards => "satori_review_cards",
             CacheKey::SatoriNewCards => "satori_new_cards",
@@ -46,10 +47,11 @@ impl ToRedisArgs for CacheKey {
 pub trait Cacheable: DeserializeOwned + serde::Serialize {
     fn cache_key() -> CacheKey;
     fn expires_at() -> DateTime<Utc>;
-    async fn api_fetch() -> anyhow::Result<Self>;
+    async fn api_fetch(client: Option<&Client>) -> anyhow::Result<Self>;
 
     async fn get(
         redis_client: &Option<redis::Client>,
+        client: Option<&Client>,
     ) -> anyhow::Result<(Self, Option<DateTime<Utc>>)> {
         let cache_data = Self::cache_read(redis_client).await;
         let expires_at = Self::get_expiry_time(redis_client).await;
@@ -58,7 +60,7 @@ pub trait Cacheable: DeserializeOwned + serde::Serialize {
             return Ok((cache_data, expires_at));
         }
 
-        let api_data = Self::api_fetch().await?;
+        let api_data = Self::api_fetch(client).await?;
         let api_data = Mutex::new(api_data);
 
         let write_result = Self::cache_write(redis_client, &api_data).await;

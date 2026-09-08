@@ -24,13 +24,13 @@ pub struct BunproData {
 }
 
 impl BunproData {
-    pub fn new(study_queue: StudyQueue, stats: BunproReviewStats) -> Self {
+    pub fn new(due: BunproDueStats, stats: BunproActivityStats) -> Self {
         let today = Utc::now().with_timezone(&Tokyo);
         let todays_stats = stats.count_for(today.naive_local().date());
 
         Self {
-            data_updated_at: study_queue.fetched_at.unwrap_or(Utc::now()),
-            active_review_count: study_queue.requested_information.reviews_available,
+            data_updated_at: Utc::now(),
+            active_review_count: due.total_due(),
             daily_study_goal_met: todays_stats > 0,
         }
     }
@@ -52,13 +52,25 @@ struct StudyQueueData {
     reviews_available_next_day: u32,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct BunproDueStats {
+    pub total_due_grammar: u32,
+    pub total_due_vocab: u32,
+}
+
+impl BunproDueStats {
+    pub fn total_due(&self) -> u32 {
+        self.total_due_grammar + self.total_due_vocab
+    }
+}
+
 #[derive(Deserialize, Serialize)]
-pub struct BunproReviewStats {
+pub struct BunproActivityStats {
     grammar: HashMap<String, u32>,
     vocab: HashMap<String, u32>,
 }
 
-impl BunproReviewStats {
+impl BunproActivityStats {
     pub fn count_for(self, date: NaiveDate) -> u32 {
         let date_string = date.format("%Y-%m-%d").to_string();
 

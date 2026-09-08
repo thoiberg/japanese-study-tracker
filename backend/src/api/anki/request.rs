@@ -23,8 +23,9 @@ use super::{
 pub async fn anki_handler(
     State(redis_client): State<Option<redis::Client>>,
 ) -> Result<(HeaderMap, Html<String>), HtmlErrorResponse> {
-    let (anki_data, cache_expiry_time) =
-        AnkiData::get(&redis_client).await.map_err(internal_error)?;
+    let (anki_data, cache_expiry_time) = AnkiData::get(&redis_client, None)
+        .await
+        .map_err(internal_error)?;
 
     let headers = add_expiry_header(HeaderMap::new(), &[cache_expiry_time]);
 
@@ -42,7 +43,7 @@ impl Cacheable for AnkiData {
         Utc::now() + Duration::hours(1)
     }
 
-    async fn api_fetch() -> anyhow::Result<Self> {
+    async fn api_fetch(_client: Option<&reqwest::Client>) -> anyhow::Result<Self> {
         Ok(Self::from(get_decks_data().await?))
     }
 }
